@@ -2,3 +2,6 @@
 env/
 # ignore data folder, this data should be pullable
 data/
+
+# PyCharm files
+.idea
