@@ -11,7 +11,8 @@ import numpy as np
 
 def householder(a):
   u = a.copy()
-  u[0] += np.copysign(np.linalg.norm(a), a[0])
+  # TODO: check change from .. += -- to .. = ... + ---
+  u[0] = u[0] + np.copysign(np.linalg.norm(a), a[0])
   h = np.identity(len(u)) - ((2 * u @ u.transpose()) / (u.transpose() @ u))
   return h
 
