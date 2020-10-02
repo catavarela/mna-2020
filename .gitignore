@@ -5,3 +5,7 @@ data/
 
 # PyCharm files
 .idea
+*.pyc
+
+# MacOS
+.DS_Store
