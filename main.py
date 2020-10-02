@@ -32,16 +32,18 @@ def generate_eigenfaces(root_dir, keep_percentage=0.5):
     sliced_eigvec = ordered_eigvec.transpose()
     return sliced_eigvec[0:int(len(sliced_eigvec) * keep_percentage),:], avg
 
-def get_weigths(face, eigenfaces, avg):
+
+def get_weights(face, eigenfaces, avg):
     face = np.array(list(chain.from_iterable(face)))
     weights = []
     for i in range(0, len(face)):
         face[i] -= avg[i]
     for i in range(0, len(eigenfaces)):
-        weights.append(float(eigenfaces[i] @ face.reshape(-1,1)))
+        weights.append(float(eigenfaces[i] @ face.reshape(-1, 1)))
     return weights
+
 
 eigenfaces, avg = generate_eigenfaces('data')
 face = cv.imread('data/image.jpg')
 face = cv.cvtColor(face, cv.COLOR_RGB2GRAY)
-weigths = get_weigths(face, eigenfaces, avg)
+weigths = get_weights(face, eigenfaces, avg)
