@@ -11,7 +11,7 @@ img = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
 
 # measure performance of eigen calculation
 start_time = time.time()
-eigval,eigvec = mhf.getEigenFromQR(img,30)
+eigval,eigvec = mhf.get_eigen_from_qr(img,30)
 end_time = time.time()
 print("Our implementation:", end_time - start_time )
 
