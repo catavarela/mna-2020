@@ -7,3 +7,4 @@ def get_face(img):
     print(face_loc)
     loc = face_loc[0]
     img = img[face_loc[0][0]:face_loc[0][2],face_loc[0][3]:face_loc[0][1]]
+    return img
