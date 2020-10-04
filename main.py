@@ -4,6 +4,7 @@ import numpy as np
 from itertools import chain
 import random
 import time
+import facedetection as fd
 
 images_to_use = 100
 # Source: http://ijarcet.org/wp-content/uploads/IJARCET-VOL-1-ISSUE-9-135-139.pdf
@@ -16,6 +17,7 @@ def generate_eigenfaces(root_dir, keep_percentage=0.5):
     for i in range(0, images_to_use):  # TODO: cambiar el images_to_use por len(faces)
         # Step 1
         face = cv.imread(images[i])
+        face = fd.get_face(face)
         face = cv.cvtColor(face, cv.COLOR_RGB2GRAY)
         # Step 2
         faces.append(list(chain.from_iterable(face)))
@@ -59,17 +61,12 @@ start = time.time()
 eigenfaces, avg = generate_eigenfaces('data')
 print('Eigenfaces generated')
 print('Generated in:', time.time() - start, 's')
-# for eigenface in eigenfaces:
-#     eig_img = np.zeros((250, 250), dtype=np.uint8)
-#     for i in range(0, len(avg)):
-#         eig_img[i // 250][i % 250] = eigenface[i]
-#     cv.imshow('average', eig_img)
-#     cv.waitKey(0)
 weights = []
 images1 = glob.glob('data/**/*0[1-3].jpg', recursive=True)
 images1.sort()
 for i in range(0, images_to_use):  # TODO: cambiar el images_to_use por len(images)
     face = cv.imread(images1[i])
+    face = fd.get_face(face)
     face = cv.cvtColor(face, cv.COLOR_RGB2GRAY)
     weights.append(get_weights(face, eigenfaces, avg))
 print('Weights calculated')
@@ -79,6 +76,7 @@ random.seed()
 rand = int(random.random() * (images_to_use//3))
 print('Imagen de prueba:', images2[rand])
 test_face = cv.imread(images2[rand])
+test_face = fd.get_face(test_face)
 test_face = cv.cvtColor(test_face, cv.COLOR_RGB2GRAY)
 test_weight = np.array(get_weights(test_face, eigenfaces, avg))
 min_distance = -1
@@ -88,13 +86,13 @@ for index, weight in enumerate(weights):
     difference = []
     for i in range(0, len(weight)):
         difference.append(weight[i] - test_weight[i])
-    accum += np.linalg.norm(difference)
-    if (index + 1) % 3 == 0:
-        distance = accum / 3
-        accum = 0
-        if distance < min_distance or min_distance == -1:
-            min_distance = distance
-            min_i = index
+    distance = np.linalg.norm(difference)
+    if distance < min_distance or min_distance == -1:
+        min_distance = distance
+        min_i = index
 end = time.time()
 print('La imagen es:', images1[min_i])
 print('Tardé', end - start, 's')
+cv.imshow('test', cv.imread(images2[rand]))
+cv.imshow('result', cv.imread(images1[min_i]))
+cv.waitKey(0)
