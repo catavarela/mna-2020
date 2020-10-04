@@ -1,84 +1,91 @@
 import cv2 as cv
 import glob
 import numpy as np
-from itertools import chain
 import random
 import time
 import facedetection as fd
 
-images_to_use = 100
-# Source: http://ijarcet.org/wp-content/uploads/IJARCET-VOL-1-ISSUE-9-135-139.pdf
+# Source: https://www.mitpressjournals.org/doi/pdf/10.1162/jocn.1991.3.1.71
 
 
-def generate_eigenfaces(root_dir, keep_percentage=0.5):
-    images = glob.glob(root_dir + '/**/*0[1-3].jpg', recursive=True)
-    images.sort()
-    faces = []
+def get_face_as_row(path, side_length=150):
+    face = cv.imread(path)
+    face = fd.get_face(face, side_length, side_length)
+    face = cv.cvtColor(face, cv.COLOR_RGB2GRAY)
+    return np.reshape(face, side_length * side_length)
+
+
+def get_face_as_column(path, side_length=150):
+    return get_face_as_row(path, side_length)[:, np.newaxis]
+
+
+def get_faces_as_columns(paths, side_length=150, images_to_use=100):
+    faces = np.zeros((images_to_use, side_length * side_length))
     for i in range(0, images_to_use):  # TODO: cambiar el images_to_use por len(faces)
-        # Step 1
-        face = cv.imread(images[i])
-        face = fd.get_face(face)
-        face = cv.cvtColor(face, cv.COLOR_RGB2GRAY)
-        # Step 2
-        faces.append(list(chain.from_iterable(face)))
-    # Step 3
-    avg = np.mean(faces, 0)
-    # Step 4
-    faces_not_average = faces
-    for i, face in enumerate(faces_not_average):
-        faces_not_average[i] -= avg
-    faces_not_average = np.array(faces_not_average).transpose()
-    # Step 5
-    # Al final no se usa la covarianza asi que no la calculo
-    # Step 6
-    # TODO: usar nuestra funcion de autovals y autovecs
-    eigval, l_eigvec = np.linalg.eig(faces_not_average.transpose() @ faces_not_average)
-    # Quiero los eigvec ordenados por mayor eigval
-    ordered_l_eigvec = [vec for val, vec in sorted(zip(eigval, l_eigvec), reverse=True)]
-    ordered_eigvec = []
-    v = np.array(ordered_l_eigvec)  # solo por paralelismo con el paper
+        faces[i] = get_face_as_row(paths[i], side_length)
+    return np.transpose(faces)
+
+
+def generate_eigenfaces(paths, keep_percentage=0.5):
+    faces = get_faces_as_columns(paths)
+
+    # Calculo la media
+    avg = np.mean(faces, 1)[:, np.newaxis]
+    # Resto la media
+    faces_min_avg = faces - avg
+
+    # Calculo los mayores autovectores de la covarianza usando el truco del paper
+    L = faces_min_avg.transpose() @ faces_min_avg
+    eigval, L_eigvec = np.linalg.eig(L)  # TODO: usar nuestra funcion de autovals y autovecs
+    # Quiero los autovectores ordenados por mayor autovalor
+    v = [vec for val, vec in sorted(zip(eigval, L_eigvec), reverse=True)]
+    u = np.zeros((len(v), len(faces_min_avg)))  # Autovectores de la covarianza
     for l in range(len(v)):
-        u_l = np.zeros((len(faces_not_average)))
         for k in range(len(v[l])):
-            u_l += v[l][k] * faces_not_average[:, k]
-        ordered_eigvec.append(np.array(u_l).transpose())
-    # Step 7
-    ordered_eigvec = np.array(ordered_eigvec)
-    return ordered_eigvec[0:int(len(ordered_eigvec) * keep_percentage), :], avg
+            u[l] += v[l][k] * faces_min_avg[:, k]  # Formula 6
+
+    # u = autovectores de la covarianza
+    # Me quedo solo con un porcentaje de autovectores (los de mayor autovalor)
+    u = u.transpose()
+    return u[:, 0:int(len(u) * keep_percentage)], avg
 
 
 def get_weights(face, eigenfaces, avg):
-    face = np.array(face).reshape(1, -1)[0]
-    weights = []
-    for i in range(0, len(face)):
-        face[i] -= avg[i]
-    for i in range(0, len(eigenfaces)):
-        weights.append(float(eigenfaces[i] @ face.reshape(-1, 1)))
-    return np.array(weights)
+    weights = np.zeros(eigenfaces.shape[1])
+    for k in range(eigenfaces.shape[1]):
+        weights[k] = float(eigenfaces[:, k] @ (face - avg))
+    return weights
 
 
+images_to_use = 100
 start = time.time()
-eigenfaces, avg = generate_eigenfaces('data')
-print('Eigenfaces generated')
-print('Generated in:', time.time() - start, 's')
+
+# ENTRENAMIENTO
+training_images = glob.glob('data/**/*0[1-3].jpg', recursive=True)
+training_images.sort()
+eigenfaces, avg = generate_eigenfaces(training_images)
+print('Eigenfaces generated in:', time.time() - start, 's')
+
 weights = []
-images1 = glob.glob('data/**/*0[1-3].jpg', recursive=True)
-images1.sort()
+
+partial_time = time.time()
 for i in range(0, images_to_use):  # TODO: cambiar el images_to_use por len(images)
-    face = cv.imread(images1[i])
-    face = fd.get_face(face)
-    face = cv.cvtColor(face, cv.COLOR_RGB2GRAY)
+    face = get_face_as_column(training_images[i])
     weights.append(get_weights(face, eigenfaces, avg))
-print('Weights calculated')
-images2 = glob.glob('data/**/*4.jpg', recursive=True)
-images2.sort()
+print('Weights calculated in:', time.time() - partial_time)
+print('Training completed in:', time.time() - start)
+
+# PRUEBA
+images = glob.glob('data/**/*4.jpg', recursive=True)
+images.sort()
 random.seed()
 rand = int(random.random() * (images_to_use//3))
-print('Imagen de prueba:', images2[rand])
-test_face = cv.imread(images2[rand])
-test_face = fd.get_face(test_face)
-test_face = cv.cvtColor(test_face, cv.COLOR_RGB2GRAY)
-test_weight = np.array(get_weights(test_face, eigenfaces, avg))
+test_image_path = images[rand]
+print('Imagen de prueba:', test_image_path)
+partial_time = time.time()
+test_face = get_face_as_column(test_image_path)
+test_weight = get_weights(test_face, eigenfaces, avg)
+# Calculo distancias
 min_distance = -1
 min_i = 0
 accum = 0
@@ -91,8 +98,9 @@ for index, weight in enumerate(weights):
         min_distance = distance
         min_i = index
 end = time.time()
-print('La imagen es:', images1[min_i])
-print('Tardé', end - start, 's')
-cv.imshow('test', cv.imread(images2[rand]))
-cv.imshow('result', cv.imread(images1[min_i]))
+print('La imagen es:', training_images[min_i])
+print('Tardé', time.time() - partial_time, 's en encontrarla')
+print('Tardé en total', end - start, 's')
+cv.imshow('test', cv.imread(test_image_path))
+cv.imshow('result', cv.imread(training_images[min_i]))
 cv.waitKey(0)
