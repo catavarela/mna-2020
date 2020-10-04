@@ -47,7 +47,7 @@ def generate_eigenfaces(paths, keep_percentage=0.5):
     # u = autovectores de la covarianza
     # Me quedo solo con un porcentaje de autovectores (los de mayor autovalor)
     u = u.transpose()
-    return u[:, 0:int(len(u) * keep_percentage)], avg
+    return u[:, 0:int(len(u[0]) * keep_percentage)], avg
 
 
 def get_weights(face, eigenfaces, avg):
