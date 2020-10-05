@@ -12,7 +12,8 @@ def get_face_as_row(path, side_length=150):
     face = cv.imread(path)
     face = fd.get_face(face, side_length, side_length)
     face = cv.cvtColor(face, cv.COLOR_RGB2GRAY)
-    return np.reshape(face, side_length * side_length)
+    face = np.reshape(face, side_length * side_length)
+    return face.astype('uint8')
 
 
 def get_face_as_column(path, side_length=150):
@@ -20,17 +21,18 @@ def get_face_as_column(path, side_length=150):
 
 
 def get_faces_as_columns(paths, side_length=150, images_to_use=100):
-    faces = np.zeros((images_to_use, side_length * side_length))
+    faces = np.zeros((images_to_use, side_length * side_length), dtype=np.uint8)
     for i in range(0, images_to_use):  # TODO: cambiar el images_to_use por len(faces)
         faces[i] = get_face_as_row(paths[i], side_length)
     return np.transpose(faces)
 
 
-def generate_eigenfaces(paths, keep_percentage=0.5):
-    faces = get_faces_as_columns(paths)
+def generate_eigenfaces(paths, keep_percentage=0.5, images_to_use=100):
+    faces = get_faces_as_columns(paths, images_to_use=images_to_use)
 
     # Calculo la media
     avg = np.mean(faces, 1)[:, np.newaxis]
+    avg = avg.astype('uint8')
     # Resto la media
     faces_min_avg = faces - avg
 
@@ -46,8 +48,8 @@ def generate_eigenfaces(paths, keep_percentage=0.5):
 
     # u = autovectores de la covarianza
     # Me quedo solo con un porcentaje de autovectores (los de mayor autovalor)
-    u = u.transpose()
-    return u[:, 0:int(len(u) * keep_percentage)], avg
+    u = u[0:int(len(u) * keep_percentage), :]
+    return u.transpose().astype('uint8'), avg
 
 
 def get_weights(face, eigenfaces, avg):
@@ -57,13 +59,20 @@ def get_weights(face, eigenfaces, avg):
     return weights
 
 
+def get_projected_image(eigenfaces, weights):
+    image = np.zeros((len(eigenfaces), 1), dtype=np.uint8)
+    for i in range(eigenfaces.shape[1]):
+        image += eigenfaces[:, i][:, np.newaxis] * weights[i]
+    return image
+
+
 images_to_use = 100
 start = time.time()
 
 # ENTRENAMIENTO
 training_images = glob.glob('data/**/*0[1-3].jpg', recursive=True)
 training_images.sort()
-eigenfaces, avg = generate_eigenfaces(training_images)
+eigenfaces, avg = generate_eigenfaces(training_images, images_to_use=images_to_use)
 print('Eigenfaces generated in:', time.time() - start, 's')
 
 weights = []
