@@ -22,20 +22,21 @@ def get_face_as_column(face_recognition, path, side_length=150):
     return get_face_as_row(face_recognition, path, side_length)[:, np.newaxis]
 
 
-def get_faces_as_columns(paths, side_length=150, images_to_use=100):
+def get_faces_as_columns(face_recognition, paths, side_length=150, images_to_use=100):
     faces = np.zeros((images_to_use, side_length * side_length))
     for i in range(0, images_to_use):  # TODO: cambiar el images_to_use por len(faces)
         faces[i] = get_face_as_row(face_recognition, paths[i], side_length)
     return np.transpose(faces)
 
 
-def generate_eigenfaces(paths, keep_percentage=0.5):
-    faces = get_faces_as_columns(paths)
+def generate_eigenfaces(face_recognition, paths, keep_percentage=0.5):
+    faces = get_faces_as_columns(face_recognition, paths)
 
     # Calculo la media
     avg = np.mean(faces, 1)[:, np.newaxis]
     # Resto la media
     faces_min_avg = faces - avg
+    cv.imshow('mean', avg.reshape((150, 150)))
 
     # Calculo los mayores autovectores de la covarianza usando el truco del paper
     L = faces_min_avg.transpose() @ faces_min_avg
@@ -60,17 +61,16 @@ def get_weights(face, eigenfaces, avg):
         weights[k] = float(eigenfaces[:, k] @ (face - avg))
     return weights
 
+
 def get_projected_image(eigenfaces, weights):
     image = np.zeros((len(eigenfaces), 1), dtype=np.uint8)
     for i in range(eigenfaces.shape[1]):
         image += eigenfaces[:, i][:, np.newaxis] * weights[i]
     return image
 
+
 def main():
     face_recognition = FaceRecognition()
-
-    images_to_use = 100
-    start = time.time()
 
     images_to_use = 100
     start = time.time()

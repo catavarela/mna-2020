@@ -29,5 +29,4 @@ class FaceRecognition:
 
             img = img[y + 1: y + h, x + 1: x + w]
 
-        img = cv.resize(img, (width, height), interpolation=cv.INTER_LINEAR)
-        return img
+        return cv.resize(img, (width, height), interpolation=cv.INTER_LINEAR)
