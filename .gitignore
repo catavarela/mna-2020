@@ -9,3 +9,5 @@ data/
 
 # MacOS
 .DS_Store
+
+*.json
