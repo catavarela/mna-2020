@@ -14,8 +14,7 @@ def householder(a):
     u = a.copy()
     # TODO: check change from .. += -- to .. = ... + ---
     u[0] = u[0] + np.copysign(np.linalg.norm(a), a[0])
-    h = np.identity(len(u)) - ((2 * u @ u.transpose()) / (u.transpose() @ u))
-    return h
+    return np.identity(len(u)) - ((2 * (u @ u.transpose())) / (u.transpose() @ u))
 
 
 def qr_decomp(A):
@@ -23,10 +22,12 @@ def qr_decomp(A):
     Q = np.identity(m)
     R = A.copy()
 
-    for k in range(0, n):
+    min_dim = min(m, n)
+    for k in range(0, min_dim):
         h = householder(R[k:, k, np.newaxis])
         H = np.identity(m)
         H[k:, k:] = h
         Q = Q @ H
         R = H @ R
-    return Q, R
+
+    return Q[:, :n], np.triu(R[:m])
