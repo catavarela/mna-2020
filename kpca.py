@@ -10,7 +10,9 @@ from itertools import chain
 import random
 import time
 import facedetection as fd
-
+from os import listdir
+from os.path import join, isdir
+import matplotlib.pyplot as plt
 from numpy import exp
 from scipy.linalg import eigh
 from scipy.spatial.distance import pdist, squareform
@@ -57,6 +59,60 @@ def generate_eigenfaces_kpca(rootdir, gamma = 15,  keep_percentage = 0.5,):
     eigvalues, eigvectors = eigh(kernel_matrix)
     # Retornamos los mas significativos
     return np.column_stack((eigvectors[:,-i] for i in range(1,ceil(len(eigvectors[0]) * keep_percentage))))
+
+
+
+def kpca(rootdir, degree, people, train,test, versize, horsize):
+
+    #Here we store the directories of the path
+    person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir))]
+
+    #array size parameters
+    size = versize * horsize
+    train_amount = people * train
+    test_amount = people * test
+
+
+    #image training
+    images = np.zeros([train_amount, size])
+    person = np.zeros([train_amount, 1])
+    image_num = 0
+    per = 0
+    trainingname = {}
+
+    for dire in person_dir:
+        for m in range(1, train_amount + 1):
+            image = plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm')
+            images[image_num, :] = (np.reshape(image, [1, size]) - 127.5)/127.5
+            person[image_num, 0] = per
+            image_num += 1
+        trainingname[per] = dire
+        per += 1
+
+    #image test
+
+    image_test = np.zeros([train_amount, size])
+    person_test = np.zeros([train_amount, 1])
+    image_num = 0
+    per = 0
+
+    for dire in person_dir:
+        for m in range(train_amount, train_amount + test_amount):
+            image = plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm')
+            image_test[image_num, :] = (np.reshape(image, [1, size]) - 127.5)/ 127.5
+            person_test[image_num,0] = per
+            image_num += 1
+        per+=1
+
+
+    #KERNEL
+
+    K = (np.dot(images,images.T)/(train_amount + 1)) ** degree
+
+
+
+
+
 
 
 
