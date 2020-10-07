@@ -18,6 +18,7 @@ from numpy import exp
 from scipy.linalg import eigh
 from scipy.spatial.distance import pdist, squareform
 from math import ceil
+from sklearn import svm
 
 
 images_to_use = 100
@@ -110,6 +111,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
             image_num += 1
         per+=1
 
+    print(images.shape)
 
     #KERNEL
     # TODO: chequear esto
@@ -120,8 +122,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     K = K - np.dot(unoM, K) - np.dot(K, unoM) + np.dot(unoM, np.dot(K, unoM))
 
     #Autovalores y autovectores
-    w, alpha = mhf.get_eigen_from_qr(K, 1000)
-    lambdas = w/ train_amount
+    w, alpha = np.linalg.eigh(K)
     lambdas = w
 
     #ordenar ascendentemente los autovalores
@@ -139,6 +140,18 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     Ktest = Ktest - np.dot(unoML, K) - np.dot(Ktest, unoM) + np.dot(unoML, np.dot(K, unoM))
     imtstproypre = np.dot(Ktest, alpha)
 
+    nmax = 30
+    accs = np.zeros([nmax,1])
+    clf = svm.LinearSVC()
+    for neigen in range(1 ,nmax):
+
+        improy      = improypre[:,0:neigen]
+        imtstproy   = imtstproypre[:,0:neigen]
+
+        clf.fit(improy,person.ravel())
+        accs[neigen] = clf.score(imtstproy,person_test.ravel())
+        print('Precisión con {0} autocaras: {1} %\n'.format(neigen,accs[neigen]*100))
+
 
 
 
@@ -148,7 +161,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
 rootdir = 'data/Fotos/'
 kernel_degree = 2
 kernel_ctx = 1
-kernel_denom = 10
+kernel_denom = 30
 people_number = 5
 train_number = 4 
 test_number = 6
