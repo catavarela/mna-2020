@@ -84,40 +84,22 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     ############################# Imagenes que usamos para training ########################
     images = np.zeros([train_amount, size])
     person = np.zeros([train_amount, 1])
-    image_num = 0
-    per = 0
-    trainingname = {}
 
-    for dire in person_dir:
-        for m in range(1, train + 1):
-            image = plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm')
-            images[image_num, :] = (np.reshape(image, [1, size]) - 127.5)/127.5
-            person[image_num, 0] = per
-            image_num += 1
-        trainingname[per] = dire
-        per += 1
+    get_images(person_dir, 1, train+1, images, person, 127.5, size)
+
 
     ############################# Imagenes que usamos para testing #######################
 
     image_test = np.zeros([test_amount, size])
     person_test = np.zeros([test_amount, 1])
-    image_num = 0
-    per = 0
 
-    for dire in person_dir:
-        for m in range(train, train + test):
-            image = plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm')
-            image_test[image_num, :] = (np.reshape(image, [1, size]) - 127.5)/ 127.5
-            person_test[image_num,0] = per
-            image_num += 1
-        per+=1
+    get_images(person_dir, train, train+test, image_test, person_test, 127.5, size)
 
-    print(images.shape)
 
     # Aplicamos la transformacion kernel para la conjunto de imagenes de training
     # Es una transformacion polinomial simple
     # TODO: chequear esto
-    kernel_matrix= (np.dot(images,images.T)/kernel_denom + kernel_ctx ) ** kernel_degree
+    kernel_matrix= kernel_polynomial_transformation(images, images,kernel_denom, kernel_ctx, kernel_degree)
 
     # Centrar la matriz del kernel
     unoM = np.ones([train_amount, train_amount]) / train_amount
@@ -127,9 +109,6 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     w, alpha = mhf.get_eigen_from_qr(kernel_matrix, 1000)
     lambdas = w
 
-    print(lambdas)
-    print(alpha)
-
     for col in range(alpha.shape[1]):
         alpha[:, col] = alpha[:, col]/np.sqrt(lambdas[col])
 
@@ -138,12 +117,11 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     training_proyection = np.dot(kernel_matrix.T, alpha)
 
 
-
     # Realizamos la transformacion de kernel sobre el conjunto de prueba
-    kernel_matrix_test = (np.dot(image_test, images.T) / kernel_denom + kernel_ctx) ** kernel_degree
-    unoML = np.ones([test_amount, train_amount]) / train_amount
+    kernel_matrix_test = kernel_polynomial_transformation(image_test, images, kernel_denom, kernel_ctx, kernel_degree)
     
-    #Centramos la matriz 
+    #Centramos la matriz
+    unoML = np.ones([test_amount, train_amount]) / train_amount 
     kernel_matrix_test = kernel_matrix_test - np.dot(unoML, kernel_matrix) - np.dot(kernel_matrix_test, unoM) + np.dot(unoML, np.dot(kernel_matrix, unoM))
     
     #Proyectamos sobre el conjunto de testing de las eigenfaces
@@ -153,6 +131,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     max_eigenfaces = 30
     accs = np.zeros([max_eigenfaces,1])
     clf = svm.LinearSVC()
+
     for eigen_n in range(1 ,max_eigenfaces):
 
         improy      = training_proyection[:,0:eigen_n]
@@ -160,12 +139,37 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
 
         clf.fit(improy,person.ravel())
         accs[eigen_n] = clf.score(imtstproy,person_test.ravel())
-        print('Autovalores: {1}   Precision: {0} %\n'.format(eigen_n,accs[eigen_n]*100))
+        print('#Autovalores: {0}   Precision: {1} %\n'.format(eigen_n, '{0:.2f}'.format(accs[eigen_n][0]*100)))
 
 
+    x=range(1, max_eigenfaces+1)
+    y=(1-accs)*100
+
+    plt.plot(x, y, 'go--', linewidth=2, markersize=12)
+    plt.xlabel('Autocaras')
+    plt.ylabel('Error')
+    plt.title('KPCA')
+    plt.xticks(np.arange(0, max_eigenfaces+0.001, step=max_eigenfaces/10))
+    plt.yticks(np.arange(0, 100+0.001, step=10))
+    plt.grid(color='black', linestyle='-', linewidth=0.2)
+    plt.show()
 
 
+def get_images(person_dir, low_limit, high_limit, result_image, result_person, average, size):
 
+    image_num = 0
+    per = 0
+
+    for dire in person_dir:
+        for m in range(low_limit, high_limit):
+            image = plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm')
+            result_image[image_num, :] = (np.reshape(image, [1, size]) - average)/ average
+            result_person[image_num,0] = per
+            image_num += 1
+        per+=1
+
+def kernel_polynomial_transformation(k1, k2, denom, ctx, degree):
+    return (np.dot(k1, k2.T)/denom + ctx ) ** degree
 
 
 rootdir = 'data/Fotos/'
@@ -175,8 +179,6 @@ kernel_denom = 30
 people_number = 5
 train_number = 4 
 test_number = 6
-VERTICAL_SIZE = 160
-HORIZONTAL_SIZE = 120
 
 kpca(rootdir, people_number, train_number, test_number, kernel_denom, kernel_ctx, kernel_degree)
 
