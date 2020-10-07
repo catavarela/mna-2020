@@ -2,12 +2,14 @@
 import math
 
 import cv2 as cv
+import numpy as np
 
 
 class FaceRecognition:
     def __init__(self):
         self.face_classifier = cv.CascadeClassifier(cv.data.haarcascades + './haarcascade_frontalface_default.xml')
         self.eyes_classifier = cv.CascadeClassifier(cv.data.haarcascades + './haarcascade_eye.xml')
+        self.faces_as_row = {} # key: path, value: face as row
 
     def get_face(self, img, width=150, height=150):
         faces_detected = self.face_classifier.detectMultiScale(img, scaleFactor=1.1, minNeighbors=5)
@@ -35,3 +37,13 @@ class FaceRecognition:
             img = img[y + 1: y + h, x + 1: x + w]
 
         return cv.resize(img, (width, height), interpolation=cv.INTER_LINEAR)
+
+    def get_face_as_row(self, path, side_length=150):
+        if path not in self.faces_as_row:
+            face = cv.imread(path)
+            face = self.get_face(face, side_length, side_length)
+            face = cv.cvtColor(face, cv.COLOR_RGB2GRAY)
+            face = np.reshape(face, side_length * side_length)
+            self.faces_as_row[path] = face.astype('uint8')
+
+        return self.faces_as_row[path]
