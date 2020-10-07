@@ -24,8 +24,13 @@ class FaceRecognition:
                     [(eyes[1][0] + eyes[1][2]) / 2, (eyes[1][1] + eyes[1][3]) / 2],
                 ]
                 angle = math.atan2(center_eyes[1][1] - center_eyes[0][1], center_eyes[1][0] - center_eyes[0][0])
-                M = cv.getRotationMatrix2D((cols / 2, rows / 2), math.degrees(angle), 1)
-                img = cv.warpAffine(img, M, (cols, rows))
+
+                if math.fabs(angle) > 1.5:
+                    angle = math.atan2(center_eyes[0][1] - center_eyes[1][1], center_eyes[0][0] - center_eyes[1][0])
+                if math.fabs(angle) < 1:
+                    # Sin esto se podria dar una rotacion muy grande
+                    M = cv.getRotationMatrix2D((cols / 2, rows / 2), math.degrees(angle), 1)
+                    img = cv.warpAffine(img, M, (cols, rows))
 
             img = img[y + 1: y + h, x + 1: x + w]
 
