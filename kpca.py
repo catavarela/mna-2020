@@ -6,6 +6,7 @@
 import cv2 as cv
 import glob
 import numpy as np
+import Matrix_Handling_Functions as mhf
 from itertools import chain
 import random
 import time
@@ -108,6 +109,31 @@ def kpca(rootdir, degree, people, train,test, versize, horsize):
     #KERNEL
 
     K = (np.dot(images,images.T)/(train_amount + 1)) ** degree
+
+    #esta transformacion es equivalente a centrar las imagenes originales
+    unoM = np.ones([train_amount, train_amount]) / train_amount
+    K = K - np.dot(unoM, K) - np.dot(K, unoM) + np.dot(unoM, np.dot(K, unoM))
+
+    #Autovalores y autovectores
+    w, alpha = mhf.get_eigen_from_qr(K, 1000)
+    lambdas = w/ train_amount
+    lambdas = w
+
+    #ordenar ascendentemente los autovalores
+    lambdas = np.flipud(lambdas)
+    alpha = np.fliplr(alpha)
+
+    for col in range(alpha.shape[1]):
+        alpha[:, col] = alpha[:, col]/np.sqrt(lambdas[col])
+
+
+    #pre-proyeccion
+    improypre = np.dot(K.T, alpha)
+    unoML = np.ones([test_amount, train_amount]) / train_amount
+    Ktest = (np.dot(image_test, images.T) / train_amount + 1) ** degree
+    Ktest = Ktest - np.dot(unoML, K) - np.dot(Ktest, unoM) + np.dot(unoML, np.dot(K, unoM))
+    imtstproypre = np.dot(Ktest, alpha)
+
 
 
 
