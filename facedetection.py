@@ -44,30 +44,21 @@ class FaceRecognition:
             face = self.get_face(face, side_length, side_length)
             face = cv.cvtColor(face, cv.COLOR_RGB2GRAY)
             face = np.reshape(face, side_length * side_length)
-            self.faces_as_row[path] = face.astype('uint8')
+            self.faces_as_row[path] = face / 255.0
 
         return self.faces_as_row[path]
 
-
-def get_face_as_row(path, side_length=150):
-    face = cv.imread(path)
-    face = get_face(face, side_length, side_length)
-    face = cv.cvtColor(face, cv.COLOR_RGB2GRAY)
-    face = np.reshape(face, side_length * side_length)
-    return face / 255.0
+    def get_faces_as_rows(self, paths, side_length=150):
+        faces = np.zeros((len(paths), side_length * side_length))
+        for i in range(0, len(paths)):
+            faces[i] = self.get_face_as_row(paths[i], side_length)
+        return faces
 
 
-def get_faces_as_rows(paths, side_length=150):
-    faces = np.zeros((len(paths), side_length * side_length))
-    for i in range(0, len(paths)):
-        faces[i] = get_face_as_row(paths[i], side_length)
-    return faces
+    def get_face_as_column(self, path, side_length=150):
+        return self.get_face_as_row(path, side_length)[:, np.newaxis]
 
 
-def get_face_as_column(path, side_length=150):
-    return get_face_as_row(path, side_length)[:, np.newaxis]
-
-
-def get_faces_as_columns(paths, side_length=150):
-    faces = get_faces_as_rows(paths, side_length)
-    return faces.transpose()
+    def get_faces_as_columns(self, paths, side_length=150):
+        faces = self.get_faces_as_rows(paths, side_length)
+        return faces.transpose()
