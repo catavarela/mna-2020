@@ -2,15 +2,19 @@ import numpy as np
 import QR_Householder as qr
 
 
-# TODO: check how eigvec is calculated
 def get_eigen_from_qr(A, iterations=50):
     Q, R = qr.qr_decomp(A)
     A = np.transpose(Q) @ A @ Q
-    eigvec = Q
-    for i in range(0, iterations - 1):
+    prev_eigvec = eigvec = Q
+
+    error = 1
+    while error > 0.1:
         Q, R = qr.qr_decomp(A)
         A = np.transpose(Q) @ A @ Q
         eigvec = eigvec @ Q
+        error = np.linalg.norm(eigvec + prev_eigvec)
+        prev_eigvec = eigvec
+
     Q, R = qr.qr_decomp(A)
     eigvec = eigvec @ Q
     eigval = np.diag(A)
