@@ -18,6 +18,8 @@ from numpy import exp
 from scipy.linalg import eigh
 from scipy.spatial.distance import pdist, squareform
 from math import ceil
+
+
 images_to_use = 100
 image_side_len = 150
 
@@ -63,7 +65,10 @@ def generate_eigenfaces_kpca(rootdir, gamma = 15,  keep_percentage = 0.5,):
 
 
 
-def kpca(rootdir, degree, people, train,test, versize, horsize):
+def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
+
+    versize = 160
+    horsize = 120
 
     #Here we store the directories of the path
     person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir))]
@@ -82,7 +87,7 @@ def kpca(rootdir, degree, people, train,test, versize, horsize):
     trainingname = {}
 
     for dire in person_dir:
-        for m in range(1, train_amount + 1):
+        for m in range(1, train + 1):
             image = plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm')
             images[image_num, :] = (np.reshape(image, [1, size]) - 127.5)/127.5
             person[image_num, 0] = per
@@ -92,13 +97,13 @@ def kpca(rootdir, degree, people, train,test, versize, horsize):
 
     #image test
 
-    image_test = np.zeros([train_amount, size])
-    person_test = np.zeros([train_amount, 1])
+    image_test = np.zeros([test_amount, size])
+    person_test = np.zeros([test_amount, 1])
     image_num = 0
     per = 0
 
     for dire in person_dir:
-        for m in range(train_amount, train_amount + test_amount):
+        for m in range(train_amount, train, train + test):
             image = plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm')
             image_test[image_num, :] = (np.reshape(image, [1, size]) - 127.5)/ 127.5
             person_test[image_num,0] = per
@@ -107,8 +112,8 @@ def kpca(rootdir, degree, people, train,test, versize, horsize):
 
 
     #KERNEL
-
-    K = (np.dot(images,images.T)/(train_amount + 1)) ** degree
+    # TODO: chequear esto
+    K = ((np.dot(images,images.T)/kernel_denom) + kernel_ctx) ** kernel_degree
 
     #esta transformacion es equivalente a centrar las imagenes originales
     unoM = np.ones([train_amount, train_amount]) / train_amount
@@ -130,7 +135,7 @@ def kpca(rootdir, degree, people, train,test, versize, horsize):
     #pre-proyeccion
     improypre = np.dot(K.T, alpha)
     unoML = np.ones([test_amount, train_amount]) / train_amount
-    Ktest = (np.dot(image_test, images.T) / train_amount + 1) ** degree
+    Ktest = (np.dot(image_test, images.T) / kernel_denom + kernel_ctx) ** kernel_degree
     Ktest = Ktest - np.dot(unoML, K) - np.dot(Ktest, unoM) + np.dot(unoML, np.dot(K, unoM))
     imtstproypre = np.dot(Ktest, alpha)
 
@@ -140,25 +145,17 @@ def kpca(rootdir, degree, people, train,test, versize, horsize):
 
 
 
+rootdir = 'data/Fotos/'
+kernel_degree = 2
+kernel_ctx = 1
+kernel_denom = 10
+people_number = 5
+train_number = 4 
+test_number = 6
+versize = 160
+horsize = 120
 
-
-generate_eigenfaces_kpca('data')
-
-
-
-
-        
-
-    
-       
-                           
-
-       
-
-    
-        
-
-generate_eigenfaces_kpca('data', 15, 0.5)
+kpca(rootdir, people_number, train_number, test_number, kernel_denom, kernel_ctx, kernel_degree)
 
 
     
