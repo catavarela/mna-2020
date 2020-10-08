@@ -9,7 +9,7 @@ class PCA:
         self.centered = images - self.mean
         self.eigenvalues, self.eigenfaces = self._get_covariance_eigenvectors()
 
-    def _get_covariance_eigenvectors(self):
+    def _get_covariance_eigenvectors(self, keep_percentage=0.3):
         """Dado una matriz de MxN, siendo M>>N, devuelve los N autovectores significativos (con autovalor distinto a 0),
         ordenados por mayor autovalor"""
         # Calculo los mayores autovectores de la covarianza
@@ -21,12 +21,15 @@ class PCA:
 
         # Los paso a autovectores de la covarianza
         # Demo de esto en la pagina 2: http://ijarcet.org/wp-content/uploads/IJARCET-VOL-1-ISSUE-9-135-139.pdf
-        eigfaces = self.centered.dot(L_eigvec.transpose()).T
-        # eigfaces = A.dot(L_eigvec.transpose()).transpose()
+        eigfaces = self.centered.dot(L_eigvec)
 
         # Los ordeno por mayor |autovalor|
         eigfaces = [eigface for val, eigface in sorted(zip(np.absolute(eigval), eigfaces), reverse=True)]
 
         # Normalizo las eigenfaces dividiendo por su norma
         eigfaces = np.divide(eigfaces, np.linalg.norm(eigfaces, axis=1).reshape((-1, 1)))
-        return eigval, eigfaces
+
+        # Paso de autovectores de L a autovectores de la matriz centrada
+        eigfaces = self.centered.dot(eigfaces)
+        floor = int(len(eigfaces) * keep_percentage)
+        return eigval[0:floor if floor == len(eigfaces) else floor + 1], eigfaces[0:floor if floor == len(eigfaces) else floor + 1]

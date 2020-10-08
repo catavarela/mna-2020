@@ -12,7 +12,7 @@ from pca import PCA
 
 
 def get_projected_images(centered_images, eigenfaces):
-    return eigenfaces.dot(centered_images)
+    return eigenfaces.T.dot(centered_images[0:len(eigenfaces)])
 
 
 def get_name_from_path(path):
@@ -21,17 +21,11 @@ def get_name_from_path(path):
 
 def main():
     face_recognition = FaceRecognition()
-    images_to_use = 200
 
     # ENTRENAMIENTO
     # Obtengo eigenfaces y promedio
-    training_images = glob.glob('data/**/*0[1-3].jpg', recursive=True)
+    training_images = glob.glob('data/**/*[0-9][2-9].jpg', recursive=True)
     training_images.sort()
-    if len(training_images) == 0:
-        print('No images to load')
-        exit(1)
-    if len(training_images) < images_to_use:
-        images_to_use = len(training_images)
 
     images_to_use = len(training_images)
     training_images = training_images[0:images_to_use]
@@ -56,7 +50,7 @@ def main():
 
     # Entreno Support Vector Machine (SVM)
     partial_start = time.time()
-    svc = svm.LinearSVC()
+    svc = svm.LinearSVC(max_iter=10000)
     projected_training = get_projected_images(pca.centered, pca.eigenfaces)
     svc.fit(projected_training, [training_images_name[path_name] for path_name in training_images])
     partial_end = time.time()
@@ -64,7 +58,7 @@ def main():
     print('Training completed in:', partial_end - start)
 
     # PRUEBA
-    images = glob.glob('data/**/*04.jpg', recursive=True)
+    images = glob.glob('data/**/*01.jpg', recursive=True)
     images.sort()
     random.seed()
     # rand = int(random.random() * (images_to_use // 3))
