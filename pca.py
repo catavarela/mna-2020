@@ -62,7 +62,7 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
     print("Generated eigenfaces")
 
     training_proyection = np.dot(images, eigenfaces.T)
-    sing_proyection = np.dot(images, eigenfaces.T)
+    sing_proyection = np.dot(result_image, eigenfaces.T)
 
     print("Generated projections")
 
@@ -190,8 +190,8 @@ train_number = 4
 test_number = 6
 
 
-#classify_face_by_pca(rootdir, people_number, 10, 'agus', 2)
-pca(rootdir, people_number, train_number, test_number)
+classify_face_by_pca(rootdir, people_number, 10, 'ignacio', 4)
+#pca(rootdir, people_number, train_number, test_number)
     
 
 
