@@ -146,7 +146,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     max_eigenfaces = 30
     accs = np.zeros([max_eigenfaces,1])
     accs_sing = np.zeros([max_eigenfaces,1])
-    clf = svm.LinearSVC()
+    clf = svm.LinearSVC(max_iter=10000000)
 
     for eigen_n in range(1 ,max_eigenfaces):
 
