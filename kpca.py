@@ -82,7 +82,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
 
     ########################## single image ###########################
 
-    image = plt.imread(rootdir + 'agus/1.pgm')
+    image = plt.imread(rootdir + 'fran/1.pgm')
     result_image = (np.reshape(image, [1, size]) - 127.5)/ 127.5
 
     person_sing = np.zeros([1,1])
@@ -162,12 +162,10 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
         # Testeando
         accs[eigen_n] = clf.score(imtstproy, person_test.ravel())
         # Imagen particular
-        accs_sing[eigen_n] = clf.score(imsingproy, person_sing)
+        print(clf.predict(imsingproy))
         # Imprimir resultados
         print('#Autovalores: {0}   Precision: {1} %\n'.format(eigen_n, '{0:.2f}'.format(accs[eigen_n][0]*100)))
 
-        # Imprimir sing
-        print(accs_sing[eigen_n][0])
 
 
     x=range(1, max_eigenfaces+1)
