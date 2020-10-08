@@ -4,20 +4,12 @@
 
 
 import cv2 as cv
-import glob
 import numpy as np
 import Matrix_Handling_Functions as mhf
-from itertools import chain
 import random
-import time
-import facedetection as fd
 from os import listdir
 from os.path import join, isdir
 import matplotlib.pyplot as plt
-from numpy import exp
-from scipy.linalg import eigh
-from scipy.spatial.distance import pdist, squareform
-from math import ceil
 from sklearn import svm
 
 def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
@@ -104,7 +96,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     HORIZONTAL_SIZE = 113
 
     # Directorios donde estan las imagenes de cada persona
-    person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir))]
+    person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir, k))]
 
     # Tamanios de los arrays que vamos a usar
     size = VERTICAL_SIZE * HORIZONTAL_SIZE
