@@ -27,7 +27,7 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
     HORIZONTAL_SIZE = 120
 
     # Cantidad de eigen values a quedarnos
-    eigen_n = 30
+    eigen_n = 25
 
     # Directorios donde estan las imagenes de cada persona
     person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir))]
@@ -39,8 +39,8 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
     ########################## single image ###########################
 
     image_path = rootdir + '{0}'.format(face_name) + '/{0}.pgm'.format(face_number)
-    image = plt.imread(image_path)
-    result_image = (np.reshape(image, [1, size]) - 127.5)/ 127.5
+    image = plt.imread(image_path)/255
+    result_image = (np.reshape(image, [1, size]))
 
     ############################# Imagenes que usamos para training ########################
     images = np.zeros([train_amount, size])
@@ -48,6 +48,18 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
 
     get_images(person_dir, 1, train+1, images, person, 127.5, size)
 
+    # Calculamos la media
+    mean_image = np.mean(images, 0)
+
+    # Estandarizar 
+
+    images = [images[k, :] - mean_image for k in
+                            range(images.shape[0])]
+    result_image = [result_image[k, :] - mean_image for k in
+                            range(result_image.shape[0])]
+
+    # Transformaciones segun el paper
+    images = np.asarray(images)
     matrix = np.dot(images, images.T)
 
     # Calculamos los autovalores y autovectores con nuestro propio metodo.
@@ -59,12 +71,8 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
     for col in range((eigenfaces).shape[0]):
         eigenfaces[:, col] = eigenfaces[:, col]/np.sqrt(lambdas[col])
 
-    print("Generated eigenfaces")
-
     training_proyection = np.dot(images, eigenfaces.T)
-    sing_proyection = np.dot(images, eigenfaces.T)
-
-    print("Generated projections")
+    sing_proyection = np.dot(result_image, eigenfaces.T)
 
     # Realizamos el calculo de svc y calculamos la precision segun la cantidad de eigenfaces
     clf = svm.LinearSVC(max_iter=10**8)
@@ -91,9 +99,6 @@ def pca(rootdir, people, train, test):
     VERTICAL_SIZE = 160
     HORIZONTAL_SIZE = 120
 
-    # Cantidad de eigen values a quedarnos
-    eigen_n = 30
-
     # Directorios donde estan las imagenes de cada persona
     person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir))]
 
@@ -116,8 +121,19 @@ def pca(rootdir, people, train, test):
 
     get_images(person_dir, train, train+test, image_test, person_test, 127.5, size)
 
+    # Calculamos la media
+    mean_image = np.mean(images, 0)
+
+    # Estandarizar 
+    images = [images[k, :] - mean_image for k in
+                            range(images.shape[0])]
+    image_test = [image_test[k, :] - mean_image for k in
+                            range(image_test.shape[0])]
+
+
 
     # Conversiones segun el paper
+    images = np.asarray(images)
     matrix = np.dot(images, images.T)
 
     # Calculamos los autovalores y autovectores con nuestro propio metodo.
@@ -141,7 +157,7 @@ def pca(rootdir, people, train, test):
     accs = np.zeros([max_eigenfaces,1])
     accs_sing = np.zeros([max_eigenfaces,1])
     # Linear iteration, set max_iter to avoid convergency errors
-    clf = svm.LinearSVC(max_iter=10**8)
+    clf = svm.LinearSVC(max_iter=10**7)
 
     for eigen_n in range(1 ,max_eigenfaces):
 
@@ -175,8 +191,8 @@ def get_images(person_dir, low_limit, high_limit, result_image, result_person, a
 
     for dire in person_dir:
         for m in range(low_limit, high_limit):
-            image = plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm')
-            result_image[image_num, :] = (np.reshape(image, [1, size]) - average)/ average
+            image = (plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm'))/255
+            result_image[image_num, :] = (np.reshape(image, [1, size]))
             result_person[image_num,0] = per
             image_num += 1
         per+=1
@@ -190,8 +206,8 @@ train_number = 4
 test_number = 6
 
 
-#classify_face_by_pca(rootdir, people_number, 10, 'agus', 2)
-pca(rootdir, people_number, train_number, test_number)
+classify_face_by_pca(rootdir, people_number, 6, 'fran', 3)
+#pca(rootdir, people_number, train_number, test_number)
     
 
 
