@@ -50,7 +50,7 @@ def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
     images = np.zeros([train_amount, size])
     person = np.zeros([train_amount, 1])
 
-    get_images(person_dir, 1, train+1, images, person, 127.5, size)
+    get_images(rootdir, person_dir, 1, train+1, images, person, 127.5, size)
 
     # Aplicamos la transformacion kernel para la conjunto de imagenes de training
     # Es una transformacion polinomial simple
@@ -93,7 +93,7 @@ def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
     print('La cara es de {0}'.format(name_predicted))
 
     input_image = cv.imread(image_path)
-    cv.putText(input_image, name_predicted, (10,30), cv.FONT_HERSHEY_SIMPLEX, 0.3,(209, 80, 0, 255),1)
+    cv.putText(input_image, name_predicted, (10,30), cv.FONT_HERSHEY_SIMPLEX, 0.8,(209, 80, 0, 255), 2)
     cv.imshow('input_image', input_image)
     cv.waitKey(0)
 
@@ -115,7 +115,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     images = np.zeros([train_amount, size])
     person = np.zeros([train_amount, 1])
 
-    get_images(person_dir, 1, train+1, images, person, 127.5, size)
+    get_images(rootdir, person_dir, 1, train+1, images, person, 127.5, size)
 
 
     ############################# Imagenes que usamos para testing #######################
@@ -123,7 +123,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     image_test = np.zeros([test_amount, size])
     person_test = np.zeros([test_amount, 1])
 
-    get_images(person_dir, train, train+test, image_test, person_test, 127.5, size)
+    get_images(rootdir, person_dir, train, train+test, image_test, person_test, 127.5, size)
 
 
     # Aplicamos la transformacion kernel para la conjunto de imagenes de training
@@ -191,7 +191,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     plt.show()
 
 
-def get_images(person_dir, low_limit, high_limit, result_image, result_person, average, size):
+def get_images(rootdir, person_dir, low_limit, high_limit, result_image, result_person, average, size):
 
     image_num = 0
     per = 0
@@ -214,17 +214,19 @@ def random_path(rootdir, person_dir, people_number):
 
     return path
 
-rootdir = 'data/fotos/'
-kernel_degree = 2
-kernel_ctx = 1
-kernel_denom = 30
-people_number = 4
-train_number = 4 
-test_number = 6
+############################### Testing ##############################3
+
+#rootdir = 'data/fotos/'
+#kernel_degree = 2
+#kernel_ctx = 1
+#kernel_denom = 30
+#people_number = 4
+#train_number = 4 
+#test_number = 6
 
 #kpca(rootdir, people_number, train_number, test_number, kernel_denom, kernel_ctx, kernel_degree)
 
-classify_face_by_kpca(rootdir, people_number, 4, 'catalina_varela', 8)
+#classify_face_by_kpca(rootdir, people_number, 4, 'catalina_varela', 8)
     
 
 

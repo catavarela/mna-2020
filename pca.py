@@ -40,15 +40,13 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
 
     image_path = rootdir + '{0}'.format(face_name) + '/{0}.pgm'.format(face_number)
     image = plt.imread(image_path)/255
-    print(size)
-    print(image.shape)
     result_image = (np.reshape(image, [1, size]))
 
     ############################# Imagenes que usamos para training ########################
     images = np.zeros([train_amount, size])
     person = np.zeros([train_amount, 1])
 
-    get_images(person_dir, 1, train+1, images, person, 127.5, size)
+    get_images(rootdir, person_dir, 1, train+1, images, person, 127.5, size)
 
     # Calculamos la media
     mean_image = np.mean(images, 0)
@@ -89,7 +87,7 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
     print('La cara es de {0}'.format(name_predicted))
 
     input_image = cv.imread(image_path)
-    cv.putText(input_image, name_predicted, (10,30), cv.FONT_HERSHEY_SIMPLEX, 1,(209, 80, 0, 255),2)
+    cv.putText(input_image, name_predicted, (10,30), cv.FONT_HERSHEY_SIMPLEX, 0.8,(209, 80, 0, 255),2)
     cv.imshow('input_image', input_image)
     cv.waitKey(0)
 
@@ -112,14 +110,14 @@ def pca(rootdir, people, train, test):
     images = np.zeros([train_amount, size])
     person = np.zeros([train_amount, 1])
 
-    get_images(person_dir, 1, train+1, images, person, 127.5, size)
+    get_images(rootdir, person_dir, 1, train+1, images, person, 127.5, size)
 
 
     ############################# Imagenes que usamos para testing #############################
     image_test = np.zeros([test_amount, size])
     person_test = np.zeros([test_amount, 1])
 
-    get_images(person_dir, train, train+test, image_test, person_test, 127.5, size)
+    get_images(rootdir, person_dir, train, train+test, image_test, person_test, 127.5, size)
 
     # Calculamos la media
     mean_image = np.mean(images, 0)
@@ -141,12 +139,8 @@ def pca(rootdir, people, train, test):
 
     eigenfaces = np.dot(alpha.T, images)
 
-    print("Generated eigenfaces")
-
     training_proyection = np.dot(images, eigenfaces.T)
     test_proyection = np.dot(image_test, eigenfaces.T)
-
-    print("Generated projections")
 
     # Realizamos el calculo de svc y calculamos la precision segun la cantidad de eigenfaces
     max_eigenfaces = 30
@@ -180,29 +174,30 @@ def pca(rootdir, people, train, test):
     plt.grid(color='black', linestyle='-', linewidth=0.2)
     plt.show()
 
-def get_images(person_dir, low_limit, high_limit, result_image, result_person, average, size):
+def get_images(root_dir, person_dir, low_limit, high_limit, result_image, result_person, average, size):
 
     image_num = 0
     per = 0
 
     for dire in person_dir:
         for m in range(low_limit, high_limit):
-            image = (plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm'))/255
+            image = (plt.imread(root_dir + dire + '/{}'.format(m) + '.pgm'))/255
             result_image[image_num, :] = (np.reshape(image, [1, size]))
             result_person[image_num,0] = per
             image_num += 1
         per+=1
 
 
+##################### Testing ########################
 
-rootdir = 'data/fotos/'
-kernel_degree = 2
-people_number = 4
-train_number = 4 
-test_number = 6
+#rootdir = 'data/fotos/'
+#kernel_degree = 2
+#people_number = 4
+#train_number = 4 
+#test_number = 6
 
 
-classify_face_by_pca(rootdir, people_number, 6, 'catalina_varela', 2)
+#classify_face_by_pca(rootdir, people_number, 6, 'catalina_varela', 2)
 #pca(rootdir, people_number, train_number, test_number)
     
 
