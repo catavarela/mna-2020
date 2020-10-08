@@ -199,6 +199,12 @@ def get_images(person_dir, low_limit, high_limit, result_image, result_person, a
 def kernel_polynomial_transformation(k1, k2, denom, ctx, degree):
     return (np.dot(k1, k2.T)/denom + ctx ) ** degree
 
+def random_path(rootdir, person_dir, people_number):
+    person = random.randint(0, people_number - 1)
+    randNum = random.randint(1, 10)
+    path = rootdir + person_dir[person] + '/{}'.format(randNum) + '.pgm'
+
+    return path
 
 rootdir = 'data/Fotos/'
 kernel_degree = 2
