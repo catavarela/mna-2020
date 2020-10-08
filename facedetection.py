@@ -36,13 +36,13 @@ class FaceRecognition:
 
             img = img[y + 1: y + h, x + 1: x + w]
 
+        img = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
         return cv.resize(img, (width, height), interpolation=cv.INTER_LINEAR)
 
     def get_face_as_row(self, path, side_length=150):
         if path not in self.faces_as_row:
             face = cv.imread(path)
             face = self.get_face(face, side_length, side_length)
-            face = cv.cvtColor(face, cv.COLOR_RGB2GRAY)
             face = np.reshape(face, side_length * side_length)
             self.faces_as_row[path] = face / 255.0
 
@@ -54,10 +54,8 @@ class FaceRecognition:
             faces[i] = self.get_face_as_row(paths[i], side_length)
         return faces
 
-
     def get_face_as_column(self, path, side_length=150):
         return self.get_face_as_row(path, side_length)[:, np.newaxis]
-
 
     def get_faces_as_columns(self, paths, side_length=150):
         faces = self.get_faces_as_rows(paths, side_length)
