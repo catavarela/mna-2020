@@ -223,9 +223,9 @@ people_number = 5
 train_number = 4 
 test_number = 6
 
-kpca(rootdir, people_number, train_number, test_number, kernel_denom, kernel_ctx, kernel_degree)
+#kpca(rootdir, people_number, train_number, test_number, kernel_denom, kernel_ctx, kernel_degree)
 
-#classify_face_by_kpca(rootdir, people_number, 4, 'ignacio', 1)
+classify_face_by_kpca(rootdir, people_number, 4, 'ignacio', 1)
     
 
 

@@ -67,9 +67,7 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
     lambdas = w
 
     eigenfaces = np.dot(alpha.T, images)
-    #TODO: Check this
-    for col in range((eigenfaces).shape[0]):
-        eigenfaces[:, col] = eigenfaces[:, col]/np.sqrt(lambdas[col])
+
 
     training_proyection = np.dot(images, eigenfaces.T)
     sing_proyection = np.dot(result_image, eigenfaces.T)
@@ -131,7 +129,6 @@ def pca(rootdir, people, train, test):
                             range(image_test.shape[0])]
 
 
-
     # Conversiones segun el paper
     images = np.asarray(images)
     matrix = np.dot(images, images.T)
@@ -141,9 +138,6 @@ def pca(rootdir, people, train, test):
     lambdas = w
 
     eigenfaces = np.dot(alpha.T, images)
-    #TODO: Check this
-    for col in range((eigenfaces).shape[0]):
-        eigenfaces[:, col] = eigenfaces[:, col]/np.sqrt(lambdas[col])
 
     print("Generated eigenfaces")
 
@@ -206,7 +200,7 @@ train_number = 4
 test_number = 6
 
 
-classify_face_by_pca(rootdir, people_number, 6, 'fran', 3)
+classify_face_by_pca(rootdir, people_number, 6, 'ignacio', 10)
 #pca(rootdir, people_number, train_number, test_number)
     
 
