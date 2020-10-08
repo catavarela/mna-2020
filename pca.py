@@ -89,7 +89,7 @@ def pca(rootdir, people, train, test):
     HORIZONTAL_SIZE = 113
 
     # Directorios donde estan las imagenes de cada persona
-    person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir))]
+    person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir, k))]
 
     # Tamanios de los arrays que vamos a usar
     size = VERTICAL_SIZE * HORIZONTAL_SIZE
