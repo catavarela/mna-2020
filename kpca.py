@@ -80,6 +80,13 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     train_amount = people * train
     test_amount = people * test
 
+    ########################## single image ###########################
+
+    image = plt.imread(rootdir + 'agus/1.pgm')
+    result_image = (np.reshape(image, [1, size]) - 127.5)/ 127.5
+
+    person_sing = np.zeros([1,1])
+    person_sing[0] = 0
 
     ############################# Imagenes que usamos para training ########################
     images = np.zeros([train_amount, size])
@@ -120,26 +127,47 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     # Realizamos la transformacion de kernel sobre el conjunto de prueba
     kernel_matrix_test = kernel_polynomial_transformation(image_test, images, kernel_denom, kernel_ctx, kernel_degree)
     
-    #Centramos la matriz
+    # Centramos la matriz
     unoML = np.ones([test_amount, train_amount]) / train_amount 
     kernel_matrix_test = kernel_matrix_test - np.dot(unoML, kernel_matrix) - np.dot(kernel_matrix_test, unoM) + np.dot(unoML, np.dot(kernel_matrix, unoM))
-    
-    #Proyectamos sobre el conjunto de testing de las eigenfaces
+
+    # Proyectamos sobre el conjunto de testing de las eigenfaces
     test_proyection = np.dot(kernel_matrix_test, alpha)
 
-    #Realizamos el calculo de svc y calculamos la precision segun la cantidad de eigenfaces
+    
+    # Transformacion para la imagen singular
+    kernel_sing = kernel_polynomial_transformation(result_image, images, kernel_denom, kernel_ctx, kernel_degree)
+    unoS = np.ones([1, train_amount]) / train_amount 
+    kernel_sing = kernel_sing - np.dot(unoS, kernel_matrix) - np.dot(kernel_sing, unoM) + np.dot(unoS, np.dot(kernel_matrix, unoM))
+    # Proyeccion de la imagen singular
+    sing_proyection = np.dot(kernel_sing, alpha)
+
+    # Realizamos el calculo de svc y calculamos la precision segun la cantidad de eigenfaces
     max_eigenfaces = 30
     accs = np.zeros([max_eigenfaces,1])
+    accs_sing = np.zeros([max_eigenfaces,1])
     clf = svm.LinearSVC()
 
     for eigen_n in range(1 ,max_eigenfaces):
 
-        improy      = training_proyection[:,0:eigen_n]
-        imtstproy   = test_proyection[:,0:eigen_n]
+        improy      = training_proyection[:, 0:eigen_n]
+        imtstproy   = test_proyection[:, 0:eigen_n]
+        
+        imsingproy = sing_proyection[:, 0:eigen_n]
 
-        clf.fit(improy,person.ravel())
-        accs[eigen_n] = clf.score(imtstproy,person_test.ravel())
+
+
+        # Entrenando
+        clf.fit(improy, person.ravel())
+        # Testeando
+        accs[eigen_n] = clf.score(imtstproy, person_test.ravel())
+        # Imagen particular
+        accs_sing[eigen_n] = clf.score(imsingproy, person_sing)
+        # Imprimir resultados
         print('#Autovalores: {0}   Precision: {1} %\n'.format(eigen_n, '{0:.2f}'.format(accs[eigen_n][0]*100)))
+
+        # Imprimir sing
+        print(accs_sing[eigen_n][0])
 
 
     x=range(1, max_eigenfaces+1)
