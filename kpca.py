@@ -161,7 +161,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     max_eigenfaces = 30
     accs = np.zeros([max_eigenfaces,1])
     accs_sing = np.zeros([max_eigenfaces,1])
-    clf = svm.LinearSVC()
+    clf = svm.LinearSVC(max_iter=10000000)
 
     for eigen_n in range(1 ,max_eigenfaces):
 
@@ -169,7 +169,8 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
         imtstproy   = test_proyection[:, 0:eigen_n]
 
         # Entrenando
-        clf.fit(improy, person.ravel())
+
+        clf.fit(np.nan_to_num(improy), person.ravel())
         # Testeando
         accs[eigen_n] = clf.score(imtstproy, person_test.ravel())
         # Imprimir resultados
