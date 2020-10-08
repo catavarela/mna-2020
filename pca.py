@@ -87,7 +87,7 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
     print('La cara es de {0}'.format(name_predicted))
 
     input_image = cv.imread(image_path)
-    cv.putText(input_image, name_predicted, (10,30), cv.FONT_HERSHEY_SIMPLEX, 0.8,(209, 80, 0, 255),2)
+    cv.putText(input_image, name_predicted, (10,30), cv.FONT_HERSHEY_SIMPLEX, 0.6,(209, 80, 0, 255),2)
     cv.imshow('input_image', input_image)
     cv.waitKey(0)
 
@@ -123,10 +123,8 @@ def pca(rootdir, people, train, test):
     mean_image = np.mean(images, 0)
 
     # Estandarizar 
-    images = [images[k, :] - mean_image for k in
-                            range(images.shape[0])]
-    image_test = [image_test[k, :] - mean_image for k in
-                            range(image_test.shape[0])]
+    images = [images[k, :] - mean_image for k in range(images.shape[0])]
+    image_test = [image_test[k, :] - mean_image for k in range(image_test.shape[0])]
 
 
     # Conversiones segun el paper
@@ -147,7 +145,7 @@ def pca(rootdir, people, train, test):
     accs = np.zeros([max_eigenfaces,1])
     accs_sing = np.zeros([max_eigenfaces,1])
     # Linear iteration, set max_iter to avoid convergency errors
-    clf = svm.LinearSVC(max_iter=10**7)
+    clf = svm.LinearSVC(max_iter=10**8)
 
     for eigen_n in range(1 ,max_eigenfaces):
 
@@ -155,7 +153,6 @@ def pca(rootdir, people, train, test):
         imtstproy   = test_proyection[:, 0:eigen_n]
 
         # Entrenando
-
         clf.fit(np.nan_to_num(improy), person.ravel())
         # Testeando
         accs[eigen_n] = clf.score(np.nan_to_num(imtstproy), person_test.ravel())
@@ -165,13 +162,16 @@ def pca(rootdir, people, train, test):
     x=range(1, max_eigenfaces+1)
     y=(1-accs)*100
 
-    plt.plot(x, y, 'go--', linewidth=2, markersize=12)
-    plt.xlabel('Autocaras')
-    plt.ylabel('Error')
-    plt.title('PCA')
+
+    x=range(1, max_eigenfaces+1)
+    y=(1-accs)*100
+    plt.plot(x, y, 'go--', linewidth=1, markersize=10, color="red")
     plt.xticks(np.arange(0, max_eigenfaces+0.001, step=max_eigenfaces/10))
     plt.yticks(np.arange(0, 100+0.001, step=10))
+    plt.xlabel('Cantidad de Autocaras')
+    plt.ylabel('% Error')
     plt.grid(color='black', linestyle='-', linewidth=0.2)
+    
     plt.show()
 
 def get_images(root_dir, person_dir, low_limit, high_limit, result_image, result_person, average, size):

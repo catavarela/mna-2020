@@ -66,7 +66,7 @@ def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
     lambdas = w
 
     for col in range(alpha.shape[1]):
-        alpha[:, col] = alpha[:, col]/np.sqrt(lambdas[col])
+        alpha[:, col] = alpha[:, col]/np.sqrt(abs(lambdas[col]))
 
     # Realizamos la proyeccion de las eigenfaces sobre el conjunto de testing
     training_proyection = np.dot(kernel_matrix.T, alpha)
@@ -93,7 +93,7 @@ def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
     print('La cara es de {0}'.format(name_predicted))
 
     input_image = cv.imread(image_path)
-    cv.putText(input_image, name_predicted, (10,30), cv.FONT_HERSHEY_SIMPLEX, 0.8,(209, 80, 0, 255), 2)
+    cv.putText(input_image, name_predicted, (10,30), cv.FONT_HERSHEY_SIMPLEX, 0.6,(209, 80, 0, 255), 2)
     cv.imshow('input_image', input_image)
     cv.waitKey(0)
 
@@ -140,7 +140,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     lambdas = w
 
     for col in range(alpha.shape[1]):
-        alpha[:, col] = alpha[:, col]/np.sqrt(lambdas[col])
+        alpha[:, col] = alpha[:, col]/np.sqrt(abs(lambdas[col]))
 
 
     # Realizamos la proyeccion de las eigenfaces sobre el conjunto de training
@@ -172,7 +172,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
         # Entrenando
         clf.fit(np.nan_to_num(improy), person.ravel())
         # Testeando
-        accs[eigen_n] = clf.score(imtstproy, person_test.ravel())
+        accs[eigen_n] = clf.score(np.nan_to_num(imtstproy), person_test.ravel())
         # Imprimir resultados
         print('#Autovalores: {0}   Precision: {1} %\n'.format(eigen_n, '{0:.2f}'.format(accs[eigen_n][0]*100)))
 
@@ -180,14 +180,13 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
 
     x=range(1, max_eigenfaces+1)
     y=(1-accs)*100
-
-    plt.plot(x, y, 'go--', linewidth=2, markersize=12)
-    plt.xlabel('Autocaras')
-    plt.ylabel('Error')
-    plt.title('KPCA')
+    plt.plot(x, y, 'go--', linewidth=1, markersize=10, color="red")
     plt.xticks(np.arange(0, max_eigenfaces+0.001, step=max_eigenfaces/10))
     plt.yticks(np.arange(0, 100+0.001, step=10))
+    plt.xlabel('Cantidad de Autocaras')
+    plt.ylabel('% Error')
     plt.grid(color='black', linestyle='-', linewidth=0.2)
+    
     plt.show()
 
 
