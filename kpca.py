@@ -26,7 +26,7 @@ def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
     eigen_n = 25
 
     # Directorios donde estan las imagenes de cada persona
-    person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir))]
+    person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir, k))]
 
     # Tamanios de los arrays que vamos a usar
     size = VERTICAL_SIZE * HORIZONTAL_SIZE
