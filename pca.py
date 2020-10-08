@@ -20,16 +20,12 @@ from scipy.spatial.distance import pdist, squareform
 from math import ceil
 from sklearn import svm
 
-def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
+def classify_face_by_pca(rootdir, people, train, face_name, face_number):
 
     # Ya predifinido las longitudes de pixeles de la imagen
     VERTICAL_SIZE = 160
     HORIZONTAL_SIZE = 120
 
-    # Variables predefinidas por nosotros
-    kernel_degree = 2
-    kernel_ctx = 1
-    kernel_denom = 30
     # Cantidad de eigen values a quedarnos
     eigen_n = 25
 
@@ -43,8 +39,8 @@ def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
     ########################## single image ###########################
 
     image_path = rootdir + '{0}'.format(face_name) + '/{0}.pgm'.format(face_number)
-    image = plt.imread(image_path)
-    result_image = (np.reshape(image, [1, size]) - 127.5)/ 127.5
+    image = plt.imread(image_path)/255
+    result_image = (np.reshape(image, [1, size]))
 
     ############################# Imagenes que usamos para training ########################
     images = np.zeros([train_amount, size])
@@ -52,34 +48,32 @@ def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
 
     get_images(person_dir, 1, train+1, images, person, 127.5, size)
 
-    # Aplicamos la transformacion kernel para la conjunto de imagenes de training
-    # Es una transformacion polinomial simple
-    # TODO: chequear esto
-    kernel_matrix= kernel_polynomial_transformation(images, images,kernel_denom, kernel_ctx, kernel_degree)
+    # Calculamos la media
+    mean_image = np.mean(images, 0)
 
-    # Centrar la matriz del kernel
-    unoM = np.ones([train_amount, train_amount]) / train_amount
-    kernel_matrix= kernel_matrix- np.dot(unoM, kernel_matrix) - np.dot(kernel_matrix, unoM) + np.dot(unoM, np.dot(kernel_matrix, unoM))
+    # Estandarizar 
+
+    images = [images[k, :] - mean_image for k in
+                            range(images.shape[0])]
+    result_image = [result_image[k, :] - mean_image for k in
+                            range(result_image.shape[0])]
+
+    # Transformaciones segun el paper
+    images = np.asarray(images)
+    matrix = np.dot(images, images.T)
 
     # Calculamos los autovalores y autovectores con nuestro propio metodo.
-    w, alpha = mhf.get_eigen_from_qr(kernel_matrix, 4000)
+    w, alpha = mhf.get_eigen_from_qr(matrix, 2000)
     lambdas = w
 
-    for col in range(alpha.shape[1]):
-        alpha[:, col] = alpha[:, col]/np.sqrt(lambdas[col])
+    eigenfaces = np.dot(alpha.T, images)
 
-    # Realizamos la proyeccion de las eigenfaces sobre el conjunto de testing
-    training_proyection = np.dot(kernel_matrix.T, alpha)
-    
-    # Transformacion para la imagen singular
-    kernel_sing = kernel_polynomial_transformation(result_image, images, kernel_denom, kernel_ctx, kernel_degree)
-    unoS = np.ones([1, train_amount]) / train_amount 
-    kernel_sing = kernel_sing - np.dot(unoS, kernel_matrix) - np.dot(kernel_sing, unoM) + np.dot(unoS, np.dot(kernel_matrix, unoM))
-    # Proyeccion de la imagen singular
-    sing_proyection = np.dot(kernel_sing, alpha)
+
+    training_proyection = np.dot(images, eigenfaces.T)
+    sing_proyection = np.dot(result_image, eigenfaces.T)
 
     # Realizamos el calculo de svc y calculamos la precision segun la cantidad de eigenfaces
-    clf = svm.LinearSVC(max_iter=10**7)
+    clf = svm.LinearSVC(max_iter=10**8)
 
     # Nos quedamos solo con los autovectores significativos
     improy      = training_proyection[:, 0:eigen_n]  
@@ -97,7 +91,7 @@ def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
     cv.imshow('input_image', input_image)
     cv.waitKey(0)
 
-def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
+def pca(rootdir, people, train, test):
 
     # Ya predifinido las longitudes de pixeles de la imagen
     VERTICAL_SIZE = 160
@@ -111,6 +105,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     train_amount = people * train
     test_amount = people * test
 
+   
     ############################# Imagenes que usamos para training ########################
     images = np.zeros([train_amount, size])
     person = np.zeros([train_amount, 1])
@@ -118,44 +113,38 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     get_images(person_dir, 1, train+1, images, person, 127.5, size)
 
 
-    ############################# Imagenes que usamos para testing #######################
-
+    ############################# Imagenes que usamos para testing #############################
     image_test = np.zeros([test_amount, size])
     person_test = np.zeros([test_amount, 1])
 
     get_images(person_dir, train, train+test, image_test, person_test, 127.5, size)
 
+    # Calculamos la media
+    mean_image = np.mean(images, 0)
 
-    # Aplicamos la transformacion kernel para la conjunto de imagenes de training
-    # Es una transformacion polinomial simple
-    # TODO: chequear esto
-    kernel_matrix= kernel_polynomial_transformation(images, images,kernel_denom, kernel_ctx, kernel_degree)
+    # Estandarizar 
+    images = [images[k, :] - mean_image for k in
+                            range(images.shape[0])]
+    image_test = [image_test[k, :] - mean_image for k in
+                            range(image_test.shape[0])]
 
-    # Centrar la matriz del kernel
-    unoM = np.ones([train_amount, train_amount]) / train_amount
-    kernel_matrix= kernel_matrix- np.dot(unoM, kernel_matrix) - np.dot(kernel_matrix, unoM) + np.dot(unoM, np.dot(kernel_matrix, unoM))
+
+    # Conversiones segun el paper
+    images = np.asarray(images)
+    matrix = np.dot(images, images.T)
 
     # Calculamos los autovalores y autovectores con nuestro propio metodo.
-    w, alpha = mhf.get_eigen_from_qr(kernel_matrix, 4000)
+    w, alpha = mhf.get_eigen_from_qr(matrix, 2000)
     lambdas = w
 
-    for col in range(alpha.shape[1]):
-        alpha[:, col] = alpha[:, col]/np.sqrt(lambdas[col])
+    eigenfaces = np.dot(alpha.T, images)
 
+    print("Generated eigenfaces")
 
-    # Realizamos la proyeccion de las eigenfaces sobre el conjunto de training
-    training_proyection = np.dot(kernel_matrix.T, alpha)
+    training_proyection = np.dot(images, eigenfaces.T)
+    test_proyection = np.dot(image_test, eigenfaces.T)
 
-
-    # Realizamos la transformacion de kernel sobre el conjunto de prueb
-    kernel_matrix_test = kernel_polynomial_transformation(image_test, images, kernel_denom, kernel_ctx, kernel_degree)
-    
-    # Centramos la matriz
-    unoML = np.ones([test_amount, train_amount]) / train_amount 
-    kernel_matrix_test = kernel_matrix_test - np.dot(unoML, kernel_matrix) - np.dot(kernel_matrix_test, unoM) + np.dot(unoML, np.dot(kernel_matrix, unoM))
-
-    # Proyectamos sobre el conjunto de testing de las eigenfaces
-    test_proyection = np.dot(kernel_matrix_test, alpha)
+    print("Generated projections")
 
     # Realizamos el calculo de svc y calculamos la precision segun la cantidad de eigenfaces
     max_eigenfaces = 30
@@ -173,11 +162,9 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
 
         clf.fit(np.nan_to_num(improy), person.ravel())
         # Testeando
-        accs[eigen_n] = clf.score(imtstproy, person_test.ravel())
+        accs[eigen_n] = clf.score(np.nan_to_num(imtstproy), person_test.ravel())
         # Imprimir resultados
         print('#Autovalores: {0}   Precision: {1} %\n'.format(eigen_n, '{0:.2f}'.format(accs[eigen_n][0]*100)))
-
-
 
     x=range(1, max_eigenfaces+1)
     y=(1-accs)*100
@@ -185,12 +172,11 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     plt.plot(x, y, 'go--', linewidth=2, markersize=12)
     plt.xlabel('Autocaras')
     plt.ylabel('Error')
-    plt.title('KPCA')
+    plt.title('PCA')
     plt.xticks(np.arange(0, max_eigenfaces+0.001, step=max_eigenfaces/10))
     plt.yticks(np.arange(0, 100+0.001, step=10))
     plt.grid(color='black', linestyle='-', linewidth=0.2)
     plt.show()
-
 
 def get_images(person_dir, low_limit, high_limit, result_image, result_person, average, size):
 
@@ -199,33 +185,23 @@ def get_images(person_dir, low_limit, high_limit, result_image, result_person, a
 
     for dire in person_dir:
         for m in range(low_limit, high_limit):
-            image = plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm')
-            result_image[image_num, :] = (np.reshape(image, [1, size]) - average)/ average
+            image = (plt.imread(rootdir + dire + '/{}'.format(m) + '.pgm'))/255
+            result_image[image_num, :] = (np.reshape(image, [1, size]))
             result_person[image_num,0] = per
             image_num += 1
         per+=1
 
-def kernel_polynomial_transformation(k1, k2, denom, ctx, degree):
-    return (np.dot(k1, k2.T)/denom + ctx ) ** degree
 
-def random_path(rootdir, person_dir, people_number):
-    person = random.randint(0, people_number - 1)
-    randNum = random.randint(1, 10)
-    path = rootdir + person_dir[person] + '/{}'.format(randNum) + '.pgm'
-
-    return path
 
 rootdir = 'data/Fotos/'
 kernel_degree = 2
-kernel_ctx = 1
-kernel_denom = 30
 people_number = 5
 train_number = 4 
 test_number = 6
 
-#kpca(rootdir, people_number, train_number, test_number, kernel_denom, kernel_ctx, kernel_degree)
 
-classify_face_by_kpca(rootdir, people_number, 4, 'ignacio', 1)
+classify_face_by_pca(rootdir, people_number, 6, 'ignacio', 10)
+#pca(rootdir, people_number, train_number, test_number)
     
 
 
