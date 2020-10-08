@@ -29,7 +29,7 @@ def main():
             exit(1)
 
     elif(action_op == '2'):
-        name_face = input('Introducir nombre de la persona: ')
+        name_face = input('Introducir nombre de la persona.\nOpciones:\tagustin\n\t\taugusto\n\t\tcatalina\n\t\tfrancisco\n\t\tguido\nSu eleccion: ')
         number_face = input('Introducir numero de la foto[1-10]: ')
 
         if(method_op == '1'):
