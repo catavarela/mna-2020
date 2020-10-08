@@ -10,8 +10,8 @@ def main():
     
     people_number = 6
 
-    train_number_kpca = 5 
-    test_number_kpca = 5
+    train_number_kpca = 6 
+    test_number_kpca = 4
 
     train_number_pca = 3 
     test_number_pca = 7

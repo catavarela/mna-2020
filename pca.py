@@ -109,7 +109,7 @@ def pca(rootdir, people, train, test):
     max_eigenfaces = 30
     accs = np.zeros([max_eigenfaces, 1])
     # Linear iteration, set max_iter to avoid convergency errors
-    clf = svm.LinearSVC(max_iter=10**8)
+    clf = svm.LinearSVC(max_iter=10**6)
 
     for eigen_n in range(1, max_eigenfaces):
 
