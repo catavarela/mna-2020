@@ -23,8 +23,8 @@ from sklearn import svm
 def classify_face_by_pca(rootdir, people, train, face_name, face_number):
 
     # Ya predifinido las longitudes de pixeles de la imagen
-    VERTICAL_SIZE = 160
-    HORIZONTAL_SIZE = 120
+    VERTICAL_SIZE = 150
+    HORIZONTAL_SIZE = 113
 
     # Cantidad de eigen values a quedarnos
     eigen_n = 25
@@ -94,8 +94,8 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
 def pca(rootdir, people, train, test):
 
     # Ya predifinido las longitudes de pixeles de la imagen
-    VERTICAL_SIZE = 160
-    HORIZONTAL_SIZE = 120
+    VERTICAL_SIZE = 150
+    HORIZONTAL_SIZE = 113
 
     # Directorios donde estan las imagenes de cada persona
     person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir))]
@@ -193,14 +193,14 @@ def get_images(person_dir, low_limit, high_limit, result_image, result_person, a
 
 
 
-rootdir = 'data/Fotos/'
+rootdir = 'data/fotos/'
 kernel_degree = 2
 people_number = 5
 train_number = 4 
 test_number = 6
 
 
-classify_face_by_pca(rootdir, people_number, 6, 'ignacio', 10)
+classify_face_by_pca(rootdir, people_number, 6, 'catalina_varela', 10)
 #pca(rootdir, people_number, train_number, test_number)
     
 
