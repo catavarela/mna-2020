@@ -40,6 +40,8 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
 
     image_path = rootdir + '{0}'.format(face_name) + '/{0}.pgm'.format(face_number)
     image = plt.imread(image_path)/255
+    print(size)
+    print(image.shape)
     result_image = (np.reshape(image, [1, size]))
 
     ############################# Imagenes que usamos para training ########################
@@ -63,7 +65,7 @@ def classify_face_by_pca(rootdir, people, train, face_name, face_number):
     matrix = np.dot(images, images.T)
 
     # Calculamos los autovalores y autovectores con nuestro propio metodo.
-    w, alpha = mhf.get_eigen_from_qr(matrix, 2000)
+    w, alpha = mhf.get_eigen_from_qr(matrix)
     lambdas = w
 
     eigenfaces = np.dot(alpha.T, images)
@@ -134,7 +136,7 @@ def pca(rootdir, people, train, test):
     matrix = np.dot(images, images.T)
 
     # Calculamos los autovalores y autovectores con nuestro propio metodo.
-    w, alpha = mhf.get_eigen_from_qr(matrix, 2000)
+    w, alpha = mhf.get_eigen_from_qr(matrix)
     lambdas = w
 
     eigenfaces = np.dot(alpha.T, images)
@@ -195,12 +197,12 @@ def get_images(person_dir, low_limit, high_limit, result_image, result_person, a
 
 rootdir = 'data/fotos/'
 kernel_degree = 2
-people_number = 5
+people_number = 4
 train_number = 4 
 test_number = 6
 
 
-classify_face_by_pca(rootdir, people_number, 6, 'catalina_varela', 10)
+classify_face_by_pca(rootdir, people_number, 6, 'catalina_varela', 2)
 #pca(rootdir, people_number, train_number, test_number)
     
 

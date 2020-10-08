@@ -23,8 +23,8 @@ from sklearn import svm
 def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
 
     # Ya predifinido las longitudes de pixeles de la imagen
-    VERTICAL_SIZE = 160
-    HORIZONTAL_SIZE = 120
+    VERTICAL_SIZE = 150
+    HORIZONTAL_SIZE = 113
 
     # Variables predefinidas por nosotros
     kernel_degree = 2
@@ -62,7 +62,7 @@ def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
     kernel_matrix= kernel_matrix- np.dot(unoM, kernel_matrix) - np.dot(kernel_matrix, unoM) + np.dot(unoM, np.dot(kernel_matrix, unoM))
 
     # Calculamos los autovalores y autovectores con nuestro propio metodo.
-    w, alpha = mhf.get_eigen_from_qr(kernel_matrix, 4000)
+    w, alpha = mhf.get_eigen_from_qr(kernel_matrix)
     lambdas = w
 
     for col in range(alpha.shape[1]):
@@ -93,15 +93,15 @@ def classify_face_by_kpca(rootdir, people, train, face_name, face_number):
     print('La cara es de {0}'.format(name_predicted))
 
     input_image = cv.imread(image_path)
-    cv.putText(input_image, name_predicted, (10,30), cv.FONT_HERSHEY_SIMPLEX, 1,(209, 80, 0, 255),2)
+    cv.putText(input_image, name_predicted, (10,30), cv.FONT_HERSHEY_SIMPLEX, 0.3,(209, 80, 0, 255),1)
     cv.imshow('input_image', input_image)
     cv.waitKey(0)
 
 def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
 
     # Ya predifinido las longitudes de pixeles de la imagen
-    VERTICAL_SIZE = 160
-    HORIZONTAL_SIZE = 120
+    VERTICAL_SIZE = 150
+    HORIZONTAL_SIZE = 113
 
     # Directorios donde estan las imagenes de cada persona
     person_dir = [k for k in listdir(rootdir) if isdir(join(rootdir))]
@@ -136,7 +136,7 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
     kernel_matrix= kernel_matrix- np.dot(unoM, kernel_matrix) - np.dot(kernel_matrix, unoM) + np.dot(unoM, np.dot(kernel_matrix, unoM))
 
     # Calculamos los autovalores y autovectores con nuestro propio metodo.
-    w, alpha = mhf.get_eigen_from_qr(kernel_matrix, 4000)
+    w, alpha = mhf.get_eigen_from_qr(kernel_matrix)
     lambdas = w
 
     for col in range(alpha.shape[1]):
@@ -170,7 +170,6 @@ def kpca(rootdir, people, train, test, kernel_denom, kernel_ctx, kernel_degree):
         imtstproy   = test_proyection[:, 0:eigen_n]
 
         # Entrenando
-
         clf.fit(np.nan_to_num(improy), person.ravel())
         # Testeando
         accs[eigen_n] = clf.score(imtstproy, person_test.ravel())
@@ -215,17 +214,17 @@ def random_path(rootdir, person_dir, people_number):
 
     return path
 
-rootdir = 'data/Fotos/'
+rootdir = 'data/fotos/'
 kernel_degree = 2
 kernel_ctx = 1
 kernel_denom = 30
-people_number = 5
+people_number = 4
 train_number = 4 
 test_number = 6
 
 #kpca(rootdir, people_number, train_number, test_number, kernel_denom, kernel_ctx, kernel_degree)
 
-classify_face_by_kpca(rootdir, people_number, 4, 'ignacio', 1)
+classify_face_by_kpca(rootdir, people_number, 4, 'catalina_varela', 8)
     
 
 
