@@ -23,4 +23,4 @@ Si se eligió testear un método entonces comenzará el programa, sino se pedir�
 1. Qué persona se desea clasificar (agustin, augusto, catalina, francisco, guido o nicolas).
 2. Qué imagen usar para la clasificación (un número del 1-10).
 
-Para utilizar imágenes distintas a las brindadas en la base de datos procurar usar imágenes de 150 píxeles de alto por 113 píxeles de ancho.
+Para utilizar imágenes distintas a las brindadas en la base de datos procurar usar imágenes en formato pgm de 150 píxeles de alto por 113 píxeles de ancho.
