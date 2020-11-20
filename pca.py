@@ -159,6 +159,13 @@ def get_images(root_dir, person_dir, low_limit, high_limit, size, ammount):
 #people_number = 4
 #train_number = 4 
 #test_number = 6
+=======
+rootdir = 'data/fotos2/'
+kernel_degree = 2
+people_number = 5
+train_number = 4 
+test_number = 6
+>>>>>>> Stashed changes
 
 
 #classify_face_by_pca(rootdir, people_number, 6, 'catalina', 2)
