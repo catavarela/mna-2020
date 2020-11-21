@@ -1,23 +1,29 @@
 % Analysis constants
-N = 256;
-x = 32 * pi * (1:N)' / N;
-h = 0.002;
-k = [0:N/2-1 0 -N/2+1:-1]' / 16;
+N = 256; %number of discrete
+
+% interval defined
+IntStart = 0;
+IntFin = 32 * pi;
+x = IntervalDivider(IntStart, IntFin,N); %discretization of interval
+d_t = 0.002;
+d_x = x(2) - x(1);
+d_k = (2*pi)/(N*(x(2)-x(1)));
+k = [0:N/2-1 0 -N/2+1:-1]' * d_k;
 
 % Render constants
 frames = 1;
 tensoruu = {};
 tensortt = {};
 
-% Uncomment these lines to run a parallel cluster with a custom amount of
-% workers
-% c = parcluster;
-% c.NumWorkers = workers;
-% parpool(c, workers);
+%This fraction of code is to enable paralelization
+%clusters = 5;
+%c = parcluster;
+%c.NumWorkers = clusters;
+%parpool(c, clusters);
 
 % Solver method
 for i = 1:frames
-  [tt, uu] = Solver(h,x,k,4,0, @AfinAsimetrico);
+  [tt, uu] = Solver(d_t,x,k,4,0, @AfinAsimetrico);
   tensoruu = [tensoruu uu];
   tensortt = [tensortt tt];
 end
@@ -37,4 +43,4 @@ for i = 1:frames
 end
 % end
 
-delete(gcp('nocreate'));
+delete(gcp('nocreate')); %to shutdown parpool

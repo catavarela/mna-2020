@@ -9,8 +9,8 @@ function U = AfinSimetrico(h, U, k, q)
     X = U;
     Y = U;
     for j = 1:i
-      X = AfinMas(h/i, X, k);
-      Y = AfinMenos(h/i, Y, k);
+      Y = Lineal(h/i, NoLineal(h/i, Y, k), k); %I-
+      X =  NoLineal(h/i, Lineal(h/i, X, k), k); %I+
     end
     Z = Z + gammas(i) .* X + gammas(i) .* Y;
   end
