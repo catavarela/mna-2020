@@ -4,7 +4,7 @@ function U = AfinSimetrico(h, U, k, q)
 
   gammas = GamasSimetrico(q);
   Z = 0;
-  n = q/2;
+  n = floor(q/2);
   for i = 1:n
     X = U;
     Y = U;

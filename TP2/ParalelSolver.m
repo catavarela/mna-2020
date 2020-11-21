@@ -30,7 +30,7 @@ function [tt, uu] = ParalelSolver(h,x,k,q,p)
   for n = 1:nmax
       t = n * h;
 
-      U = AfinAsimetricoParalelo(h, U, k, q);
+      U = AfinSimetricoParalelo(h, U, k, q);
 
       if mod(n, nplt) == 0
         u = real(ifft(U));

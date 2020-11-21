@@ -3,8 +3,10 @@ function U = AfinSimetricoParalelo(h, U, k, q)
   % Afin integrator symmetric with parallel computing.
 
   x = U;
-  n = floor(q/2);
+  n = uint64(floor(q/2));
   gammas = GamasSimetrico(q);
+  size(gammas)
+  q = uint64(q);
   spmd(q) %here we split in threads
      for j = 1:n
       if labindex == j 

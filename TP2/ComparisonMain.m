@@ -1,6 +1,6 @@
 % Analysis constants
 N = 256;
-x = 32 * pi * (1:N)' / N;
+x = IntervalDivider(0, 32*pi, N);
 h = 0.002;
 k = [0:N/2-1 0 -N/2+1:-1]' / 16;
 
@@ -29,7 +29,6 @@ for i = 1:100
   end
 
 
-  i
   Error(tt, tt2)
   errors = [errors Error(uu, uu2)];
 %   tensoruu = [tensoruu uu];
@@ -37,7 +36,7 @@ for i = 1:100
 end
 
 output = [[1:100] * h;errors];
-writematrix(output,'globalError.csv','Delimiter','tab')
+dlmwrite('myFile.txt',output,'delimiter','\t')
 % end
 
 % Render cycle
