@@ -7,7 +7,7 @@ function U = AfinAsimetrico(h, U, k, q)
   for i = 1:q
     X = U;
     for j = 1:i
-      X = AfinMas(h/i, X, k);
+      X = NoLineal(h/i, Lineal(h/i, X, k), k); %I+
     end
     Z = Z + gammas(i) .* X;
   end

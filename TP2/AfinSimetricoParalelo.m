@@ -8,8 +8,9 @@ function U = AfinSimetricoParalelo(h, U, k, q)
   gammas = GamasSimetrico(q);
   spmd(n)
       for j = 1:labindex
-          x = AfinMas(h/labindex, x, k);
-          y = AfinMenos(h/labindex, x, k);
+          x = NoLineal(h/labindex, Lineal(h/labindex, x, k), k); %I+
+          y = Lineal(h/labindex, NoLineal(h/labindex, y, k), k); %I-
+       
       end 
       x = gammas(labindex) .* x + gammas(labindex) .* y;
   end

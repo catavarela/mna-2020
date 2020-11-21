@@ -7,7 +7,7 @@ gammas = GamasAsimetrico(q);
 
 spmd(q)
     for j = 1:labindex
-        x = AfinMas(h/labindex, x, k);
+        x = NoLineal(h/labindex, Lineal(h/labindex, x, k), k);
     end 
     x = gammas(labindex) * x;
 end
