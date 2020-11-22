@@ -5,7 +5,7 @@ h = 0.002;
 k = [0:N/2-1 0 -N/2+1:-1]' / 16;
 
 % Render constants
-frames = 1;
+frames = 5;
 tensoruu = {};
 tensortt = {};
 errors = [];

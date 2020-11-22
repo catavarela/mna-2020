@@ -8,7 +8,7 @@ function [tt, uu] = Solver(d_t,x,k,q,p, integrator)
   % p: perturbance enabled or disabled
   
   % Set time limit
-  tmax = 15;
+  tmax = 150;
   nmax = round(tmax / d_t);
   nplt = floor((tmax / 100) / d_t);
 
