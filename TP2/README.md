@@ -1,43 +1,36 @@
-## TP MNA 2
+- TP2  MNA (Kuramto-Sivashinsky)
 
-En este repositorio se encuentra la implementación del TP2 de Métodos Numéricos Avanzados.
+En este trabajo expondremos la implementación de la solución aproximada a las ecuaciones de Kuramoto-Sivashinsky.
 
-## Implementación
+- Implementación
 
-El modelo fue implementado en Matlab en su totalidad, y se utilizó python 3 para la generación de visualizaciones de los resultados.
+Se utilizó matlab para la totalidad del proyecto y también se utilizó google sheets en conjunto para el análisis de los datos.
 
-## Ejecución
+- Funcionalidad
 
-El programa se ejecuta desde el archivo `Main.m` o bien `ComparisonMain.m` (Desde ahora, los `Mains`). El primero corre el programa y genera la visualización de la solución a la ecuación KS, el segundo en cambio genera un archivo CSV con los errores entre distintas corridas.
+Por una parte, está el archivo SequentialMovementRun.m, en donde hay ciertas variables que se pueden modificar para cambiar la funcionalidad del código:
 
-Desde los `Mains` puede definirse la cantidad de muestras tomadas (`N`), el paso (`h`), y el integrador utilizado. Para esto, debe utilizarse alguno de los integradores definidos: `LieTrotter`, `Strang`, `Ruth`, `Neri`, `AfinSimetrico`, `AfinAsimetrico`, `AfinSimetricoParalelo`, `AfinAsimetricoParalelo`. Y deben llamarse utilizando la siguiente interfaz:
+N --> los puntos a discretizar sobre la función
+delta_t --> Paso de integración
+q --> orden de los métodos afines
+perturbación --> 0 si no se quiere perturbar al sistema y 1 si se quiere perturbarlo
+frames --> la cantidad de frames que se quiere para la graficación de la perturbación
+IntStart, IntFin --> el intervalo de la función a simular
+method --> método a utilizar para la implementación del sistema
 
-```
-Solver(h,x,k,q,p,@integrador);
-```
+Siendo los valores de method los siguientes:
+1 - Lie Trotter
+2 - Strang
+3 - Ruth
+4 - Neri
+5 - Affine Symmetric
+6 - Affine Asymmetric
 
-Donde los parámetros son:
-- `h`: Paso de integración
-- `x`: Valores de x
-- `k`: Valores de k
-- `q`: Orden del integrador. Los SSMs comunes no utilizan este parametro, pero debe pasarse igual para respetar la interfaz
-- `p`: 1 si se quiere perturtbación aleatoria en la condicion inicial, 0 si no.
-- `integrador`: Alguno de los integradores listados previamente.
 
-De esta manera, un ejemplo de ejecución es:
+Por otra parte, se encuentra el archivo ParallelRun que se utiliza para ejecutar la implementación de métodos afines paralelos y que mantiene los parámetros anteriores con diferencia de method siendo sus valores:
 
-```
-% x y k definidos previamente en el
-Solver(0.002,x,k,4,0,@AfinAsimetrico);
-```
+1 - Affine Symmetric Parallel
+2 - Affine Asymmetric Parallel
 
-## Visualización de resultados
 
-Para la visualización de los errores se utilizó el script de python definido en el directorio `analysis`. Para ejecutarlo debe ejecutarse:
-
-```
-pip install -r requirements.txt
-python errors.py
-```
-
-Las últimas 2 líneas del script definen el análisis que se quiere realizar y el directorio de dónde obtener los archivos para comparar. Por defecto se calcula el error global de los SSMs comúnes a partir de lo calculado en el directorio `results/data/error_global/comunes`.
+Por último, se utilizó el archivo ComparisonMain.m que se utilizó para generar los archivos de post procesamiento de los resultados que utiliza los mismos parámtros que el primer archivo de ejecución.
