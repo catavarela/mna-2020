@@ -12,8 +12,8 @@ errors = [];
 % Solver method
 % for i = 1:frames
 for i = 1:100
-  [tt, uu] = ComparisonSolver(h * i,x,k,4,0, @AfinAsimetrico);
-  [tt2, uu2] = ComparisonSolver((h * i)/2,x,k,4,0, @AfinAsimetrico);
+  [tt, uu] = ComparisonSolver(h * i,x,k,4,0, @AffineAsymmetric);
+  [tt2, uu2] = ComparisonSolver((h * i)/2,x,k,4,0, @AffineAsymmetric);
   tt2 = tt2(1:2:end);
   uu2 = uu2(:, 1:2:end);
 
