@@ -6,11 +6,11 @@ IntStart = 0;
 IntFin = 32 * pi;
 tic
 x = IntervalDivider(IntStart, IntFin,N); %discretization of interval
-d_t = 0.05;
+d_t = 0.1;
 d_x = x(2) - x(1);
 d_k = (2*pi)/(N*(x(2)-x(1)));
 k = [0:N/2-1 0 -N/2+1:-1]' * d_k;
-q = 2;
+q = 10;
 c = parcluster;
 c.NumWorkers = q;
 parpool('local', q);

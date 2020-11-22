@@ -1,11 +1,11 @@
 % Analysis constants
 N = 256; %number of discrete
-
+tic
 % interval defined
 IntStart = 0;
 IntFin = 32 * pi;
 x = IntervalDivider(IntStart, IntFin,N); %discretization of interval
-d_t = 0.002;
+d_t = 0.01;
 d_x = x(2) - x(1);
 d_k = (2*pi)/(N*(x(2)-x(1)));
 k = [0:N/2-1 0 -N/2+1:-1]' * d_k;
@@ -14,17 +14,11 @@ k = [0:N/2-1 0 -N/2+1:-1]' * d_k;
 frames = 1;
 tensoruu = {};
 tensortt = {};
-
-%This fraction of code is to enable paralelization
-%clusters = 4;
-%c = parcluster;
-%c.NumWorkers = clusters;
-%parpool(c, clusters);
+q=10
 
 % Solver method
 for i = 1:frames
-  [tt, uu] = Solver(d_t,x,k,4,0,@AfinSimetrico);
-  uu
+  [tt, uu] = Solver(d_t,x,k,q,0,@AfinSimetrico);
   tensoruu = [tensoruu uu];
   tensortt = [tensortt tt];
 end
@@ -43,5 +37,6 @@ for i = 1:frames
   pause(0.033);
 end
 % end
+toc
 
 delete(gcp('nocreate')); %to shutdown parpool

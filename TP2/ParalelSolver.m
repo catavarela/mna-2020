@@ -9,7 +9,7 @@
 
 function [tt, uu] = ParalelSolver(d_t,x,k,q,p,integrator)
 
-  tmax = 10;
+  tmax = 15;
 
   nmax = round(tmax / d_t);
 
