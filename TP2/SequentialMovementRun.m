@@ -1,9 +1,6 @@
-% Analysis constants
-N = 256; %number of discrete
 
-
-tic % we measure time from this point
-
+N = 256; 
+tic 
 
 % method --> 1 - Lie Trotter
 % method --> 2 - Strang
@@ -13,23 +10,19 @@ tic % we measure time from this point
 % method --> 6 - Affine Asymmetric
 
 method = 6;
-% interval defined
 IntStart = 0;
 IntFin = 32 * pi;
-x = CropInterval(IntStart, IntFin,N); %discretization of interval
+x = CropInterval(IntStart, IntFin,N);
 d_t = 0.01;
 d_x = x(2) - x(1);
 d_k = (2*pi)/(N*(x(2)-x(1)));
 k = [0:N/2-1 0 -N/2+1:-1]' * d_k;
 
-% Render constants
 frames = 1;
 tensoruu = {};
 tensortt = {};
+q=10; 
 
-q=10; %this is only used in afin methods
-
-% Solver method
 for i = 1:frames
     if method == 1
         [tt, uu] = Solver(d_t,x,k,q,1,@LieTrotterIntegrator);
@@ -49,14 +42,12 @@ for i = 1:frames
   tensortt = [tensortt tt];
 end
 
-% Gif creation
 h = figure;
 filename = 'Movement.gif';
 for i = 1:frames
   tt = tensortt{i};
   uu = tensoruu{i};
 
-  % Plot results:
   surf(tt, x, uu), shading interp, lighting phong, axis tight
   view([-90 90]), colormap(autumn); set(gca, 'zlim', [-5 50])
   light('color', [1 1 0], 'position', [-1, 2, 2])
@@ -72,7 +63,5 @@ for i = 1:frames
   end
 end
 
-
-toc %we finish measuring time
-
-delete(gcp('nocreate')); %to shutdown parpool
+toc
+delete(gcp('nocreate'));

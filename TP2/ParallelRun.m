@@ -1,6 +1,4 @@
-% Analysis constants
-N = 256; %number of discrete
-
+N = 256;
 
 %method --> 1 - Affine Symmetric Parallel
 %method --> 2 - Affine Asymmetric Parallel
@@ -8,11 +6,10 @@ N = 256; %number of discrete
 method = 1;
 
 
-% interval defined
 IntStart = 0;
 IntFin = 32 * pi;
 tic
-x = CropInterval(IntStart, IntFin,N); %discretization of interval
+x = CropInterval(IntStart, IntFin,N);
 d_t = 0.1;
 d_x = x(2) - x(1);
 d_k = (2*pi)/(N*(x(2)-x(1)));

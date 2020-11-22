@@ -11,8 +11,8 @@ function U = AffineSymmetric(delta_t, U, k, q)
     Y = U;
     
     for it = 1:j
-      Y = Lineal(delta_t/j, NoLineal(delta_t/j, Y, k), k); %I-
-      X =  NoLineal(delta_t/j, Lineal(delta_t/j, X, k), k); %I+
+      Y = Lineal(delta_t/j, NoLineal(delta_t/j, Y, k), k); 
+      X =  NoLineal(delta_t/j, Lineal(delta_t/j, X, k), k); 
     end
     
     Z = Z + gamas(j) .* X + gamas(j) .* Y;
