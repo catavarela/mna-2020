@@ -8,8 +8,8 @@ function [tt, uu] = Solver(delta_t,x,k,q,p,integrator)
   
   % Set time limit
   tmax = 10;
-  nmax = round(tmax / d_t);
-  nplt = floor((tmax / 100) / d_t);
+  nmax = round(tmax / delta_t);
+  nplt = floor((tmax / 100) / delta_t);
 
   % Define initial conditions:
   perturbance = x * (rand * 0.01 - 0.005) * p; % p is 1 if perturbance is enabled, 0 otherwise

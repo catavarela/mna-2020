@@ -1,6 +1,18 @@
 % Analysis constants
 N = 256; %number of discrete
-tic
+
+
+tic % we measure time from this point
+
+
+% method --> 1 - Lie Trotter
+% method --> 2 - Strang
+% method --> 3 - Ruth
+% method --> 4 - Neri
+% method --> 5 - Affine Symmetric
+% method --> 6 - Affine Asymmetric
+
+method = 6;
 % interval defined
 IntStart = 0;
 IntFin = 32 * pi;
@@ -11,20 +23,33 @@ d_k = (2*pi)/(N*(x(2)-x(1)));
 k = [0:N/2-1 0 -N/2+1:-1]' * d_k;
 
 % Render constants
-frames = 10;
+frames = 1;
 tensoruu = {};
 tensortt = {};
-q=4
+
+q=10; %this is only used in afin methods
 
 % Solver method
 for i = 1:frames
-  [tt, uu] = Solver(d_t,x,k,q,1,@LieTrotter);
+    if method == 1
+        [tt, uu] = Solver(d_t,x,k,q,1,@LieTrotterIntegrator);
+    elseif method == 2
+        [tt, uu] = Solver(d_t,x,k,q,1,@StrangIntegrator);
+    elseif method == 3
+        [tt, uu] = Solver(d_t,x,k,q,1,@RuthIntegrator);
+    elseif method == 4
+        [tt, uu] = Solver(d_t,x,k,q,1,@NeriIntegrator);
+    elseif method == 5
+        [tt, uu] = Solver(d_t,x,k,q,1,@AffineSymmetric);
+    elseif method == 6
+        [tt, uu] = Solver(d_t,x,k,q,1,@AffineAsymmetric);
+    end
+    
   tensoruu = [tensoruu uu];
   tensortt = [tensortt tt];
 end
 
-% Render cycle
-% while true
+% Gif creation
 h = figure;
 filename = 'Movement.gif';
 for i = 1:frames
@@ -46,7 +71,8 @@ for i = 1:frames
         imwrite(imind,cm,filename,'gif','WriteMode','append');
   end
 end
-% end
-toc
+
+
+toc %we finish measuring time
 
 delete(gcp('nocreate')); %to shutdown parpool
