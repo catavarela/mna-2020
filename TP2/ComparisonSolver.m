@@ -12,7 +12,7 @@ function [tt, uu] = ComparisonSolver(h,x,k,q,p,integrator)
     perturbance = x * (rand * 0.01 - 0.005) * p; 
     px = x + perturbance;
 
-    u = InitialCondition(px);
+    u = StartingCondition(px);
     
     U = fft(u);
 

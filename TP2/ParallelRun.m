@@ -12,7 +12,7 @@ method = 1;
 IntStart = 0;
 IntFin = 32 * pi;
 tic
-x = IntervalDivider(IntStart, IntFin,N); %discretization of interval
+x = CropInterval(IntStart, IntFin,N); %discretization of interval
 d_t = 0.1;
 d_x = x(2) - x(1);
 d_k = (2*pi)/(N*(x(2)-x(1)));

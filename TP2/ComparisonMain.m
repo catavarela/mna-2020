@@ -1,5 +1,5 @@
 N = 256;
-x = IntervalDivider(0, 32*pi, N);
+x = CropInterval(0, 32*pi, N);
 h = 0.002;
 k = [0:N/2-1 0 -N/2+1:-1]' / 16;
 

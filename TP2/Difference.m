@@ -1,6 +1,5 @@
-function D = Difference(ua, ub)
-  % This function calculates the difference, given 2 discretized functions
-  
-  D = ua - ub;
+function D = Difference(x, y)
+
+  D = x - y;
 
 end

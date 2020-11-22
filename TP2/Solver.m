@@ -16,7 +16,7 @@ function [tt, uu] = Solver(delta_t,x,k,q,p,integrator)
   % perturbance = 0;
   px = x + perturbance;
 
-  u = InitialCondition(px);
+  u = StartingCondition(px);
 
   U = fft(u);
 
