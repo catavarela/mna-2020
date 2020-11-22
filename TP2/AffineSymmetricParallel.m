@@ -10,30 +10,30 @@ function U = AffineSymmetricParallel(delta_t, U, k, q)
 
      for j = 1:m
 
-      if r == j 
+      if labindex == j 
 
-        for i = 1:r
-          X = NoLineal(delta_t/r, Lineal(delta_t/r, X, k), k); %I-
+        for i = 1:labindex
+          X = NoLineal(delta_t/labindex, Lineal(delta_t/labindex, X, k), k); %I-
         end
 
-        X = gamas(r) .* X;
+        X = gamas(labindex) .* X;
 
       end
       
-      if r == j + m  
+      if labindex == j + m  
 
-         for i = 1:r-m 
-             X= NoLineal(delta_t/(r-m), Lineal(delta_t/(r-m), X, k), k); %I+
+         for i = 1:labindex-m 
+             X= NoLineal(delta_t/(labindex-m), Lineal(delta_t/(labindex-m), X, k), k); %I+
          end
 
-         X = gamas(r-m) .* X; 
+         X = gamas(labindex-m) .* X; 
 
       end
        
      end
   end
 
-  for i = 2:m
+  for i = 2:q
       X{1} = X{1} +X{i};
   end
 

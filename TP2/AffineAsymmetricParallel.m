@@ -10,14 +10,15 @@ spmd(q)
 
     for i = 1:m
         
-        if j == i 
+        if labindex == i 
             
-            for it = 1:j
-                X = NoLineal(delta_t/j, Lineal(delta_t/j, X, k), k);
+            for it = 1:labindex
+                X = NoLineal(delta_t/labindex, Lineal(delta_t/labindex, X, k), k);
             end
             
-            X = gamas(j) .* X;
+            
         end
+        X = gamas(labindex) .* X;
 
     end
     

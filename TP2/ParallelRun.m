@@ -10,12 +10,12 @@ d_t = 0.1;
 d_x = x(2) - x(1);
 d_k = (2*pi)/(N*(x(2)-x(1)));
 k = [0:N/2-1 0 -N/2+1:-1]' * d_k;
-q = 10;
+q = 2;
 c = parcluster;
 c.NumWorkers = q;
 parpool('local', q);
 
-[tt, uu] = Solver(d_t, x,k,q,0,@AfinSimetricoParalelo);
+[tt, uu] = Solver(d_t, x,k,q,0,@AffineAsymmetricParallel);
 surf(tt, x, uu), shading interp, lighting phong, axis tight
   view([-90 90]), colormap(autumn); set(gca, 'zlim', [-5 50])
   light('color', [1 1 0], 'position', [-1, 2, 2])
