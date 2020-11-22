@@ -1,6 +1,3 @@
-
-% Calculate the next U using the Strang Integrator
-
-function U = Strang(h, U, k, q)
-  U = Lineal( h/2, NoLineal(h, Lineal(h/2,  U, k), k), k);
+function U = StrangIntegrator(delta_t, U, k, q)
+  U = Lineal( delta_t/2, NoLineal(delta_t, Lineal(delta_t/2,  U, k), k), k);
   end
