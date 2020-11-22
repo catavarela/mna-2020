@@ -16,14 +16,15 @@ tensoruu = {};
 tensortt = {};
 
 %This fraction of code is to enable paralelization
-clusters = 4;
-c = parcluster;
-c.NumWorkers = clusters;
-parpool(c, clusters);
+%clusters = 4;
+%c = parcluster;
+%c.NumWorkers = clusters;
+%parpool(c, clusters);
 
 % Solver method
 for i = 1:frames
-  [tt, uu] = ParalelSolver(d_t,x,k,4,0);
+  [tt, uu] = Solver(d_t,x,k,4,0,@AfinSimetrico);
+  uu
   tensoruu = [tensoruu uu];
   tensortt = [tensortt tt];
 end

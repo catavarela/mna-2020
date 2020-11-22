@@ -1,4 +1,4 @@
-function [tt, uu] = Solver(h,x,k,q,p, integrator)
+function [tt, uu] = Solver(d_t,x,k,q,p, integrator)
   % solves the differential equation using an integrator.
 
   % h: time step
@@ -9,8 +9,8 @@ function [tt, uu] = Solver(h,x,k,q,p, integrator)
   
   % Set time limit
   tmax = 150;
-  nmax = round(tmax / h);
-  nplt = floor((tmax / 100) / h);
+  nmax = round(tmax / d_t);
+  nplt = floor((tmax / 100) / d_t);
 
   % Define initial conditions:
   perturbance = x * (rand * 0.01 - 0.005) * p; % p is 1 if perturbance is enabled, 0 otherwise
@@ -18,14 +18,15 @@ function [tt, uu] = Solver(h,x,k,q,p, integrator)
   px = x + perturbance;
   u = InitialCondition(px);
   U = fft(u);
+  
 
   % Main solving loop:
   uu = u;
   tt = 0;
   for n = 1:nmax
-      t = n * h;
+      t = n * d_t;
 
-      U = integrator(h, U, k, q);
+      U = integrator(d_t, U, k, q);
 
       % Save solution once every nlpt steps
       if mod(n, nplt) == 0
